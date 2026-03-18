@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Planeten Quizrad</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --bg: #ecf0f1;
+            --leicht: #2ecc71; 
+            --mittel: #f1c40f; 
+            --wheel-border: #2c3e50;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh; 
+            height: 100dvh; 
+            overflow: hidden; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 { margin: 0 0 2vmin 0; font-size: clamp(20px, 4vmin, 32px); }
+        h3 { margin: 0; }
+
+        /* Setup Screen */
+        #setup-screen {
+            display: flex;
+            flex-direction: column;
+            width: 95%;
+            max-width: 650px;
+            margin: auto; 
+            padding: 3vmin;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            overflow-y: auto; 
+            max-height: 90%;
+        }
+        
+        .rules-box {
+            background: #f8f9fa;
+            border-left: 5px solid #3498db;
+            padding: 2vmin;
+            text-align: left;
+            margin-bottom: 3vmin;
+            border-radius: 0 8px 8px 0;
+        }
+        .rules-box h3 { color: #2980b9; margin-bottom: 1vmin; font-size: clamp(16px, 3vmin, 20px);}
+        .rules-box ul {
+            padding-left: 20px;
+            margin: 0;
+            line-height: 1.4;
+            font-size: clamp(14px, 2.5vmin, 16px);
+        }
+        
+        .team-inputs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2vmin;
+            margin-bottom: 2vmin;
+        }
+        .team-input {
+            display: flex;
+            align-items: center;
+            gap: 1vmin;
+        }
+        input[type="text"] {
+            padding: 1.5vmin;
+            font-size: clamp(14px, 2.5vmin, 16px);
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 200px;
+        }
+        input[type="text"]:focus { border-color: #3498db; outline: none; }
+        
+        .start-btn {
+            padding: 2vmin 4vmin;
+            font-size: clamp(16px, 3vmin, 20px);
+            font-weight: bold;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+            margin: 0 auto;
+            width: fit-content;
+        }
+        .start-btn:hover { background-color: #27ae60; transform: scale(1.05); }
+
+        /* Game Screen */
+        #game-screen { 
+            display: none; 
+            flex: 1; 
+            flex-direction: column;
+            padding: 2vmin;
+            min-height: 0;
+        }
+        
+        #scoreboard {
+            flex-shrink: 0; 
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            background: white;
+            padding: 1.5vmin;
+            border-radius: 10px;
+            margin-bottom: 1vmin;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: clamp(12px, 3vw, 18px);
+            font-weight: bold;
+            gap: 1vmin;
+        }
+        .team-score { padding: 1vmin 2vmin; border-radius: 8px; transition: background 0.3s; }
+        .active-team { background-color: #3498db; color: white; transform: scale(1.05); box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4); }
+
+        /* Wheel Container */
+        .wheel-container {
+            flex: 1; 
+            min-height: 0; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            padding: 2vmin 0;
+        }
+        
+        .wheel-scaler {
+            position: relative;
+            height: 100%; 
+            max-height: 85vw; 
+            aspect-ratio: 1 / 1; 
+        }
+
+        .pointer {
+            position: absolute;
+            top: -6%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; 
+            height: 0; 
+            border-left: 3vmin solid transparent;
+            border-right: 3vmin solid transparent;
+            border-top: 6vmin solid #e74c3c;
+            z-index: 10;
+            filter: drop-shadow(0 4px 5px rgba(0,0,0,0.4));
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: clamp(4px, 1.5vmin, 8px) solid var(--wheel-border);
+            background: conic-gradient(
+                #ff9ff3 0deg 40deg,
+                #feca57 40deg 80deg,
+                #ff6b6b 80deg 120deg,
+                #48dbfb 120deg 160deg,
+                #1dd1a1 160deg 200deg,
+                #c8d6e5 200deg 240deg,
+                #5f27cd 240deg 280deg,
+                #54a0ff 280deg 320deg,
+                #00d2d3 320deg 360deg
+            );
+            position: relative;
+            transition: transform 4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .wheel-labels {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            border-radius: 50%;
+        }
+        .wheel-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50%; 
+            height: 10%;
+            margin-top: -5%; 
+            transform-origin: 0 50%;
+            font-weight: 800;
+            font-size: clamp(10px, 3vmin, 18px); 
+            color: #111;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.9), -1px -1px 2px rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; 
+            padding-right: 6%; 
+            letter-spacing: 0.5px;
+        }
+
+        /* Spin Button */
+        #spin-btn {
+            flex-shrink: 0;
+            margin: 1vmin auto 2vmin auto;
+            padding: 2vmin 4vmin;
+            font-size: clamp(16px, 4vw, 24px);
+            font-weight: bold;
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(230, 126, 34, 0.4);
+            transition: all 0.2s;
+        }
+        #spin-btn:hover { background-color: #d35400; transform: scale(1.05); }
+        #spin-btn:disabled { background-color: #95a5a6; cursor: not-allowed; transform: scale(1); box-shadow: none; }
+
+        /* Footer Styling */
+        .page-footer {
+            flex-shrink: 0; 
+            background-color: var(--primary);
+            color: white;
+            padding: 2vmin;
+            font-size: clamp(10px, 2.5vmin, 14px);
+            text-align: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+            line-height: 1.6;
+        }
+        .page-footer a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .page-footer a:hover {
+            text-decoration: underline;
+        }
+        .page-footer img {
+            height: clamp(16px, 3vmin, 22px);
+            vertical-align: middle;
+            margin: 0 2px;
+            filter: invert(1); /* Färbt die schwarzen SVGs weiß */
+        }
+
+        /* Modals (Fragen & Gewinner) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: white;
+            padding: 4vmin;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 90dvh;
+            overflow-y: auto; 
+            text-align: left;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #win-screen .modal-content {
+            text-align: center;
+            padding: 6vmin;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            border: 4px solid #f1c40f;
+            justify-content: center;
+            align-items: center;
+        }
+        .win-title { font-size: clamp(30px, 8vmin, 60px); color: #f39c12; margin: 0 0 2vmin 0; }
+        #win-team-name { font-size: clamp(24px, 5vmin, 40px); color: #2c3e50; margin: 0 0 4vmin 0; }
+
+        .diff-badge {
+            align-self: flex-start;
+            padding: 1vmin 2vmin;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: clamp(12px, 2.5vmin, 16px);
+            margin-bottom: 2vmin;
+            color: #000;
+        }
+        .badge-leicht { background-color: var(--leicht); }
+        .badge-mittel { background-color: var(--mittel); }
+        
+        #q-text { font-size: clamp(18px, 4vmin, 26px); margin: 0 0 2vmin 0; line-height: 1.3;}
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5vmin;
+        }
+        .option-btn {
+            background: var(--bg);
+            color: var(--primary);
+            text-align: left;
+            padding: 2vmin;
+            font-size: clamp(14px, 3vmin, 18px);
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .option-btn:hover { background: #dfe6e9; }
+        .option-btn.correct { background: var(--leicht); color: white; border-color: var(--leicht); font-weight: bold; }
+        .option-btn.wrong { background: #e74c3c; color: white; border-color: #e74c3c; font-weight: bold;}
+
+        #next-btn {
+            padding: 2vmin;
+            font-size: clamp(16px, 3.5vmin, 20px);
+            font-weight: bold;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 3vmin;
+        }
+        #next-btn:hover { background-color: #2980b9; }
+
+    </style>
+</head>
+<body>
+
+    <div id="setup-screen">
+        <h1>Kosmos Quizrad</h1>
+        
+        <div class="rules-box">
+            <h3>So wird gespielt:</h3>
+            <ul>
+                <li>Tragt die vier Teamnamen unten in die Felder ein.</li>
+                <li>Gespielt wird abwechselnd. Klickt auf den Button, um das Rad zu drehen.</li>
+                <li>Beantwortet die angezeigte Frage richtig, um Punkte zu sammeln:</li>
+                <li>🟢 <strong>Leicht (Grün)</strong> = 1 Punkt</li>
+                <li>🟡 <strong>Mittel (Gelb)</strong> = 2 Punkte</li>
+                <li>Das erste Team mit <strong>10 Punkten</strong> gewinnt!</li>
+            </ul>
+        </div>
+
+        <div class="team-inputs">
+            <div class="team-input"><label>Team 1:</label><input type="text" id="t1" value="Team Apollo"></div>
+            <div class="team-input"><label>Team 2:</label><input type="text" id="t2" value="Team Gemini"></div>
+            <div class="team-input"><label>Team 3:</label><input type="text" id="t3" value="Team Voyager"></div>
+            <div class="team-input"><label>Team 4:</label><input type="text" id="t4" value="Team Sputnik"></div>
+        </div>
+        <button class="start-btn" onclick="startGame()">Spiel Starten</button>
+    </div>
+
+    <div id="game-screen">
+        <div id="scoreboard">
+            <div id="score-0" class="team-score">Team 1: 0</div>
+            <div id="score-1" class="team-score">Team 2: 0</div>
+            <div id="score-2" class="team-score">Team 3: 0</div>
+            <div id="score-3" class="team-score">Team 4: 0</div>
+        </div>
+
+        <div class="wheel-container">
+            <div class="wheel-scaler">
+                <div class="pointer"></div>
+                <div class="wheel" id="wheel">
+                    <div class="wheel-labels" id="wheel-labels"></div>
+                </div>
+            </div>
+        </div>
+        
+        <button id="spin-btn" onclick="spinWheel()">Team 1: Rad drehen!</button>
+    </div>
+
+    <footer class="page-footer">
+        <a href="#">Quiz-Rad</a> © 2026 by <a href="https://www.ph-noe.ac.at/de/personen/martina-spitaler" target="_blank"> Martina Spitaler </a> &amp; <a href="https://www.ph-noe.ac.at/de/personen/claudia-petz" target="_blank">Claudia Petz</a> | <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a>
+        <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC">
+        <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY">
+        <img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="NC">
+        <img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="SA">
+    </footer>
+
+    <div id="question-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="q-category"><h3 style="margin:0 0 1vmin 0; font-size: clamp(20px, 4vmin, 26px);">Kategorie</h3></div>
+            <div id="q-difficulty" class="diff-badge badge-leicht">Leicht (1 Punkt)</div>
+            <h2 id="q-text">Fragentext?</h2>
+            <div class="options" id="q-options">
+                </div>
+            <button id="next-btn" style="display:none;" onclick="nextTurn()">Nächster Zug</button>
+        </div>
+    </div>
+
+    <div id="win-screen" class="modal-overlay" style="z-index: 200;">
+        <div class="modal-content">
+            <h1 class="win-title">🎉 GEWONNEN! 🎉</h1>
+            <h2 id="win-team-name">Team X hat 10 Punkte erreicht!</h2>
+            <button class="start-btn" onclick="restartGame()">Spiel neu starten</button>
+        </div>
+    </div>
+
+    <script>
+        const categories = [
+            "Die Sonne", "Der Merkur", "Die Venus", "Die Erde", 
+            "Der Mars", "Der Jupiter", "Der Saturn", "Der Uranus", "Der Neptun"
+        ];
+
+        // Question Database (1:1 aus dem Dokument)
+        const questionsDB = [
+            { cat: 0, diff: "leicht", pts: 1, q: "Was ist die Sonne eigentlich?", opts: ["A) Ein riesiger Planet", "B) Ein Stern", "C) Ein großer Mond"], ans: 1 },
+            { cat: 0, diff: "leicht", pts: 1, q: "Was schenkt uns die Sonne, damit wir auf der Erde leben können?", opts: ["A) Licht und Wärme", "B) Wasser und Luft", "C) Steine und Sand"], ans: 0 },
+            { cat: 0, diff: "leicht", pts: 1, q: "Wo geht die Sonne am Morgen auf?", opts: ["A) Im Westen", "B) Im Süden", "C) Im Osten"], ans: 2 },
+            { cat: 0, diff: "leicht", pts: 1, q: "Welche Farbe hat die Sonne auf Kinderzeichnungen meistens?", opts: ["A) Blau", "B) Gelb", "C) Grün"], ans: 1 },
+            { cat: 0, diff: "leicht", pts: 1, q: "Was passiert, wenn man direkt ohne Schutz in die Sonne schaut?", opts: ["A) Man bekommt Superkräfte", "B) Die Augen können schwer geschädigt werden", "C) Gar nichts"], ans: 1 },
+            { cat: 0, diff: "leicht", pts: 1, q: "Um welchen Himmelskörper drehen sich alle Planeten in unserem System?", opts: ["A) Um die Erde", "B) Um den Mond", "C) Um die Sonne"], ans: 2 },
+            { cat: 0, diff: "mittel", pts: 2, q: "Wie nennt man die dunkleren, kühleren Stellen auf der Sonnenoberfläche?", opts: ["A) Sonnenlöcher", "B) Sonnenflecken", "C) Sonnentäler"], ans: 1 },
+            { cat: 0, diff: "mittel", pts: 2, q: "Wie lange braucht das Licht der Sonne, bis es bei uns ankommt?", opts: ["A) Etwa 8 Minuten", "B) Genau 1 Stunde", "C) 24 Stunden"], ans: 0 },
+            { cat: 0, diff: "mittel", pts: 2, q: "Wie heiß ist es etwa an der Oberfläche der Sonne?", opts: ["A) 100 Grad Celsius", "B) 6.000 Grad Celsius", "C) 1 Million Grad Celsius"], ans: 1 },
+            { cat: 0, diff: "mittel", pts: 2, q: "Besteht die Sonne aus festem Gestein?", opts: ["A) Ja, sie ist ein harter Fels", "B) Nein, sie besteht aus flüssigem Wasser", "C) Nein, sie besteht aus glühend heißen Gasen"], ans: 2 },
+            { cat: 0, diff: "mittel", pts: 2, q: "Wie oft passt die Erde ungefähr in die Sonne hinein?", opts: ["A) 10 Mal", "B) Über 1 Million Mal", "C) Genau 1.000 Mal"], ans: 1 },
+            { cat: 0, diff: "mittel", pts: 2, q: "Was würde passieren, wenn die Sonne plötzlich aufhören würde zu leuchten?", opts: ["A) Es würde nur ein bisschen kühler werden", "B) Alles Leben auf der Erde würde erfrieren", "C) Die Menschen würden einfach Taschenlampen benutzen"], ans: 1 },
+
+            { cat: 1, diff: "leicht", pts: 1, q: "Welcher Planet ist der Sonne am nächsten?", opts: ["A) Merkur", "B) Mars", "C) Erde"], ans: 0 },
+            { cat: 1, diff: "leicht", pts: 1, q: "Wie groß ist der Merkur im Vergleich zu den anderen Planeten?", opts: ["A) Er ist der größte", "B) Er ist der kleinste", "C) Er ist genau so groß wie der Saturn"], ans: 1 },
+            { cat: 1, diff: "leicht", pts: 1, q: "Hat der Merkur einen Mond?", opts: ["A) Ja, einen großen", "B) Nein, er hat keinen Mond", "C) Ja, zwei kleine"], ans: 1 },
+            { cat: 1, diff: "leicht", pts: 1, q: "Aus welchem Material besteht die Oberfläche des Merkur hauptsächlich?", opts: ["A) Aus Wasser", "B) Aus festem Gestein", "C) Aus Wolken"], ans: 1 },
+            { cat: 1, diff: "leicht", pts: 1, q: "Wie sieht der Merkur von außen aus?", opts: ["A) Er hat viele Krater", "B) Er ist hellblau und glatt", "C) Er schimmert grün"], ans: 0 },
+            { cat: 1, diff: "leicht", pts: 1, q: "Ist der Merkur ein Gasplanet, Gesteinsplanet oder Eisplanet?", opts: ["A) Gasplanet", "B) Gesteinsplanet", "C) Eisplanet"], ans: 1 },
+            { cat: 1, diff: "mittel", pts: 2, q: "Warum ist es auf dem Merkur tagsüber extrem heiß und nachts extrem kalt?", opts: ["A) Weil er sich zu langsam dreht", "B) Weil er fast keine Atmosphäre hat", "C) Weil die Sonne nur ganz kurz scheint"], ans: 1 },
+            { cat: 1, diff: "mittel", pts: 2, q: "Wie lange dauert ein Jahr auf dem Merkur (eine Runde um die Sonne)?", opts: ["A) 88 Tage", "B) 365 Tage", "C) 10 Jahre"], ans: 0 },
+            { cat: 1, diff: "mittel", pts: 2, q: "Kann man auf dem Merkur atmen?", opts: ["A) Ja, die Luft ist wie auf der Erde", "B) Nein, es gibt dort keinen Sauerstoff", "C) Nur, wenn man die Nase zuhält"], ans: 1 },
+            { cat: 1, diff: "mittel", pts: 2, q: "Warum hat der Merkur so viele Krater?", opts: ["A) Weil dort früher Vulkane waren", "B) Weil viele Meteoriten eingeschlagen sind", "C) Weil Menschen dort Löcher gegraben haben"], ans: 1 },
+            { cat: 1, diff: "mittel", pts: 2, q: "Als was wird der Merkur in der römischen Mythologie oft dargestellt?", opts: ["A) Als Götterbote mit Flügel-Schuhen", "B) Als Gott des Meeres", "C) Als Gott des Krieges"], ans: 0 },
+            { cat: 1, diff: "mittel", pts: 2, q: "Wie ist die Schwerkraft auf dem Merkur im Vergleich zur Erde?", opts: ["A) Viel stärker", "B) Viel schwächer", "C) Genau gleich"], ans: 1 },
+
+            { cat: 2, diff: "leicht", pts: 1, q: "Welcher Planet ist der hellste am Nachthimmel?", opts: ["A) Mars", "B) Venus", "C) Neptun"], ans: 1 },
+            { cat: 2, diff: "leicht", pts: 1, q: "Wie wird die Venus oft genannt, weil sie so hell leuchtet?", opts: ["A) Sonnenfreund", "B) Morgenstern oder Abendstern", "C) Nachtlampe"], ans: 1 },
+            { cat: 2, diff: "leicht", pts: 1, q: "Welcher Planet ist unser direkter Nachbar in Richtung Sonne?", opts: ["A) Merkur", "B) Venus", "C) Jupiter"], ans: 1 },
+            { cat: 2, diff: "leicht", pts: 1, q: "Hat die Venus Monde?", opts: ["A) Nein", "B) Ja, einen", "C) Ja, vier"], ans: 0 },
+            { cat: 2, diff: "leicht", pts: 1, q: "Welche Farbe haben die Wolken der Venus?", opts: ["A) Weiß-gelblich", "B) Tiefblau", "C) Knallrot"], ans: 0 },
+            { cat: 2, diff: "leicht", pts: 1, q: "Ist die Venus größer oder kleiner als die Erde?", opts: ["A) Viel größer", "B) Fast genau so groß wie die Erde", "C) Viel kleiner als der Merkur"], ans: 1 },
+            { cat: 2, diff: "mittel", pts: 2, q: "Gibt es auf der Venus Vulkane?", opts: ["A) Nein, niemals", "B) Ja, sehr viele", "C) Nur einen einzigen"], ans: 1 },
+            { cat: 2, diff: "mittel", pts: 2, q: "Warum ist es auf der Venus so extrem heiß (ca. 470 Grad)?", opts: ["A) Wegen des Treibhauseffekts", "B) Weil sie aus Feuer besteht", "C) Weil die Sonne dort doppelt so groß ist"], ans: 0 },
+            { cat: 2, diff: "mittel", pts: 2, q: "In welche Richtung dreht sich die Venus (im Gegensatz zur Erde)?", opts: ["A) Gar nicht, sie steht still", "B) Von West nach Ost", "C) Von Ost nach West / rückwärts"], ans: 2 },
+            { cat: 2, diff: "mittel", pts: 2, q: "Woraus bestehen die Wolken auf der Venus?", opts: ["A) Aus Wasserdampf", "B) Aus ätzender Schwefelsäure", "C) Aus Zuckerwatte"], ans: 1 },
+            { cat: 2, diff: "mittel", pts: 2, q: "Warum leuchtet die Venus so hell?", opts: ["A) Weil sie selbst Licht erzeugt", "B) Weil ihre hellen Wolken das Licht reflektieren", "C) Weil sie aus Glas besteht"], ans: 1 },
+            { cat: 2, diff: "mittel", pts: 2, q: "Kann man die Oberfläche der Venus mit einem normalen Fernrohr sehen?", opts: ["A) Ja, sie ist sehr deutlich", "B) Nein, die dichten Wolken versperren die Sicht", "C) Nur im Winter"], ans: 1 },
+
+            { cat: 3, diff: "leicht", pts: 1, q: "Wie wird die Erde oft genannt, weil sie vom All blau aussieht?", opts: ["A) Grüner Planet", "B) Blauer Planet", "C) kleiner Ball"], ans: 1 },
+            { cat: 3, diff: "leicht", pts: 1, q: "Wie lange braucht die Erde, um sich einmal um sich selbst zu drehen?", opts: ["A) Eine Woche", "B) 24 Stunden", "C) Ein Jahr"], ans: 1 },
+            { cat: 3, diff: "leicht", pts: 1, q: "Wie viele Monde hat die Erde?", opts: ["A) Keinen", "B) Einen", "C) Zwei"], ans: 1 },
+            { cat: 3, diff: "leicht", pts: 1, q: "Welches Gas in der Luft brauchen wir Menschen zum Atmen?", opts: ["A) Stickstoff", "B) Kohlendioxid", "C) Sauerstoff"], ans: 2 },
+            { cat: 3, diff: "leicht", pts: 1, q: "Wodurch entstehen auf der Erde die Jahreszeiten?", opts: ["A) Weil die Sonne im Winter schwächer scheint", "B) Weil die Erdachse geneigt ist", "C) Weil die Erde im Sommer näher an der Sonne ist"], ans: 1 },
+            { cat: 3, diff: "leicht", pts: 1, q: "Wie viel der Erdoberfläche ist etwa mit Wasser bedeckt?", opts: ["A) Etwa ein Viertel", "B) Ungefähr zwei Drittel", "C) Alles"], ans: 1 },
+            { cat: 3, diff: "mittel", pts: 2, q: "Wie heißt die Kraft, die uns am Boden hält?", opts: ["A) Magnetismus", "B) Zentrifugalkraft", "C) Schwerkraft"], ans: 2 },
+            { cat: 3, diff: "mittel", pts: 2, q: "Wie lange braucht die Erde für eine Reise um die Sonne?", opts: ["A) 100 Tage", "B) 365 Tage", "C) 24 Stunden"], ans: 1 },
+            { cat: 3, diff: "mittel", pts: 2, q: "Was schützt uns vor der gefährlichen Strahlung der Sonne?", opts: ["A) Die Wolken", "B) Das Magnetfeld und die Ozonschicht", "C) Die Bäume"], ans: 1 },
+            { cat: 3, diff: "mittel", pts: 2, q: "Wie nennt man die Platten, aus denen die Erdkruste besteht?", opts: ["A) Erdbretter", "B) Tektonische Platten", "C) Landstücke"], ans: 1 },
+            { cat: 3, diff: "mittel", pts: 2, q: "Wie nennt man die äußere, feste Schicht der Erde?", opts: ["A) Erdkern", "B) Erdkruste", "C) Erdhaut"], ans: 1 },
+            { cat: 3, diff: "mittel", pts: 2, q: "In welche Richtung dreht sich die Erde?", opts: ["A) Von West nach Ost", "B) Von Nord nach Süd", "C) Von Ost nach West"], ans: 0 },
+
+            { cat: 4, diff: "leicht", pts: 1, q: "Welchen Spitznamen hat der Mars?", opts: ["A) Der goldene Planet", "B) Der Rote Planet", "C) Der staubige Planet"], ans: 1 },
+            { cat: 4, diff: "leicht", pts: 1, q: "Warum sieht der Mars rot aus?", opts: ["A) Weil dort Feuer brennt", "B) Wegen des rostigen Eisenstaubs", "C) Weil er von der Sonne angestrahlt wird"], ans: 1 },
+            { cat: 4, diff: "leicht", pts: 1, q: "Wie viele Monde hat der Mars?", opts: ["A) Einen", "B) Zwei", "C) Gar keine"], ans: 1 },
+            { cat: 4, diff: "leicht", pts: 1, q: "Wie heißen die Roboterautos auf dem Mars?", opts: ["A) Mars-Bikes", "B) Rover", "C) Space-Trucks"], ans: 1 },
+            { cat: 4, diff: "leicht", pts: 1, q: "Ist der Mars größer oder kleiner als die Erde?", opts: ["A) Viel größer", "B) Er ist etwa halb so groß", "C) Genau so groß"], ans: 1 },
+            { cat: 4, diff: "leicht", pts: 1, q: "Gibt es auf dem Mars heute noch flüssige Ozeane?", opts: ["A) Ja, riesige Meere", "B) Nein, das Wasser ist meistens gefroren", "C) Nein, es gibt dort gar kein Wasser"], ans: 1 },
+            { cat: 4, diff: "mittel", pts: 2, q: "Wie heißt der größte Berg im Sonnensystem, der auf dem Mars liegt?", opts: ["A) Mount Everest", "B) Olympus Mons", "C) Mars-Gipfel"], ans: 1 },
+            { cat: 4, diff: "mittel", pts: 2, q: "Wie lange dauert ein Tag auf dem Mars?", opts: ["A) Fast wie auf der Erde (ca. 24,5 Stunden)", "B) Nur 10 Stunden", "C) 50 Stunden"], ans: 0 },
+            { cat: 4, diff: "mittel", pts: 2, q: "Was sind „Phobos“ und „Deimos“?", opts: ["A) Mars-Astronauten", "B) Die zwei Monde des Mars", "C) Zwei große Krater"], ans: 1 },
+            { cat: 4, diff: "mittel", pts: 2, q: "Kann man auf dem Mars ohne Raumanzug atmen?", opts: ["A) Ja, aber es ist anstrengend", "B) Nein, die Atmosphäre ist zu dünn", "C) Ja, wenn man tief einatmet"], ans: 1 },
+            { cat: 4, diff: "mittel", pts: 2, q: "Wie sehen die Monde des Mars aus?", opts: ["A) Rund wie unser Mond", "B) Unregelmäßig wie Kartoffeln", "C) Wie ein Würfel"], ans: 1 },
+            { cat: 4, diff: "mittel", pts: 2, q: "Gibt es auf dem Mars Jahreszeiten?", opts: ["A) Nein, dort ist es immer gleich", "B) Ja, ähnlich wie auf der Erde", "C) Nur Sommer und Winter"], ans: 1 },
+
+            { cat: 5, diff: "leicht", pts: 1, q: "Welche Farbe hat der Jupiter hauptsächlich, wenn man ihn durch ein Teleskop betrachtet?", opts: ["A) Tiefblau wie der Ozean", "B) Beige und Braun mit hellen Streifen", "C) Giftgrün"], ans: 1 },
+            { cat: 5, diff: "leicht", pts: 1, q: "Ist der Jupiter ein Gesteinsplanet, ein Gasriese oder ein Zwergplanet?", opts: ["A) Gasriese", "B) Gesteinsplanet", "C) Zwergplanet"], ans: 0 },
+            { cat: 5, diff: "leicht", pts: 1, q: "Was ist der „Große Rote Fleck“ auf dem Jupiter?", opts: ["A) Ein Vulkan", "B) Ein riesiger Wirbelsturm", "C) Ein Ozean"], ans: 1 },
+            { cat: 5, diff: "leicht", pts: 1, q: "Hat der Jupiter Ringe?", opts: ["A) Ja, aber man sieht sie kaum", "B) Nein, gar keine", "C) Ja, sie sind die größten im System"], ans: 0 },
+            { cat: 5, diff: "leicht", pts: 1, q: "Wie viele Monde hat der Jupiter ungefähr?", opts: ["A) Nur einen", "B) Über 90", "C) Gar keine"], ans: 1 },
+            { cat: 5, diff: "leicht", pts: 1, q: "Kann man auf dem Jupiter spazieren gehen?", opts: ["A) Ja, der Boden ist fest", "B) Nein, man würde einsinken", "C) Nur mit speziellen Schuhen"], ans: 1 },
+            { cat: 5, diff: "mittel", pts: 2, q: "Wie nennt man die vier größten Monde des Jupiter?", opts: ["A) Die Jupiter-Vier", "B) Die Galileischen Monde", "C) Die Sternenmonde"], ans: 1 },
+            { cat: 5, diff: "mittel", pts: 2, q: "Wie schnell dreht sich der Jupiter um sich selbst?", opts: ["A) Sehr schnell", "B) Sehr langsam", "C) Genau wie die Erde"], ans: 0 },
+            { cat: 5, diff: "mittel", pts: 2, q: "Wie lange dauert ein Tag auf dem Jupiter?", opts: ["A) Weniger als 10 Stunden", "B) Genau 24 Stunden wie auf der Erde", "C) Ein ganzes Jahr"], ans: 0 },
+            { cat: 5, diff: "mittel", pts: 2, q: "Auf welchem Jupitermond gibt es viele aktive Vulkane?", opts: ["A) Io", "B) Kallisto", "C) Erde"], ans: 0 },
+            { cat: 5, diff: "mittel", pts: 2, q: "Wie lange dauert eine Reise des Jupiters um die Sonne?", opts: ["A) 1 Jahr", "B) Fast 12 Jahre", "C) 100 Jahre"], ans: 1 },
+            { cat: 5, diff: "mittel", pts: 2, q: "Was würde passieren, wenn eine Sonde tief in den Jupiter fliegt?", opts: ["A) Sie kommt auf der anderen Seite raus", "B) Sie würde zerquetscht werden", "C) Sie landet sanft auf Gas"], ans: 1 },
+
+            { cat: 6, diff: "leicht", pts: 1, q: "An welcher Stelle (von der Sonne aus gezählt) steht der Planet Saturn?", opts: ["A) An der 2. Stelle", "B) An der 6. Stelle", "C) An der letzten Stelle"], ans: 1 },
+            { cat: 6, diff: "leicht", pts: 1, q: "Woraus bestehen die Ringe des Saturn hauptsächlich?", opts: ["A) Aus bunten Gasen", "B) Aus Eis- und Gesteinsbrocken", "C) Aus flüssigem Gold"], ans: 1 },
+            { cat: 6, diff: "leicht", pts: 1, q: "Was ist das bekannteste Kennzeichen des Planeten Saturn?", opts: ["A) Er ist der kleinste Planet", "B) Ein riesiges System aus Ringen", "C) Er hat als einziger Planet keine Monde"], ans: 1 },
+            { cat: 6, diff: "leicht", pts: 1, q: "Ist Saturn ein Gasplanet, Gesteinsplanet oder Eisplanet?", opts: ["A) Gasplanet", "B) Gesteinsplanet", "C) Eisplanet"], ans: 0 },
+            { cat: 6, diff: "leicht", pts: 1, q: "Könnte man auf dem Saturn stehen?", opts: ["A) Ja, wenn man vorsichtig ist", "B) Nein, es gibt keine feste Oberfläche", "C) Nur auf den Ringen"], ans: 1 },
+            { cat: 6, diff: "leicht", pts: 1, q: "Wie sieht der Saturn aus der Ferne aus?", opts: ["A) Grün und blau", "B) Beige/Gelblich mit Ringen", "C) Knallrot"], ans: 1 },
+            { cat: 6, diff: "mittel", pts: 2, q: "Wie heißt der größte Mond des Saturns?", opts: ["A) Titan", "B) Ganymed", "C) Luna"], ans: 0 },
+            { cat: 6, diff: "mittel", pts: 2, q: "Was ist das Besondere an Saturns Dichte?", opts: ["A) Er ist sehr schwer", "B) Er würde in Wasser schwimmen", "C) Er ist der dichteste Planet"], ans: 1 },
+            { cat: 6, diff: "mittel", pts: 2, q: "Wie viele Ringe hat der Saturn ungefähr?", opts: ["A) Nur einen", "B) Tausende schmale Ringe", "C) Genau drei"], ans: 1 },
+            { cat: 6, diff: "mittel", pts: 2, q: "Wie lange braucht der Saturn für eine Runde um die Sonne?", opts: ["A) 29 Jahre", "B) 1 Jahr", "C) 5 Jahre"], ans: 0 },
+            { cat: 6, diff: "mittel", pts: 2, q: "Wer sah die Ringe als Erster durch ein Fernrohr?", opts: ["A) Galileo Galilei", "B) Isaac Newton", "C) Christoph Kolumbus"], ans: 0 },
+            { cat: 6, diff: "mittel", pts: 2, q: "Wie warm oder kalt ist es auf dem Saturn?", opts: ["A) Es ist dort extrem heiß, über 500 Grad", "B) Es ist dort eisig kalt, etwa minus 180 Grad", "C) Es ist dort genau so warm wie im Sommer auf der Erde"], ans: 1 },
+
+            { cat: 7, diff: "leicht", pts: 1, q: "Welche Farbe hat der Planet Uranus?", opts: ["A) Rot", "B) Hellblau oder Türkis", "C) Schwarz"], ans: 1 },
+            { cat: 7, diff: "leicht", pts: 1, q: "Was ist das Besondere an der Lage des Uranus?", opts: ["A) Er steht auf dem Kopf", "B) Er rollt auf der Seite", "C) Er fliegt im Zickzack"], ans: 1 },
+            { cat: 7, diff: "leicht", pts: 1, q: "Zu welcher Gruppe gehört der Uranus?", opts: ["A) Gesteinsplaneten", "B) Eisriesen", "C) Zwergplaneten"], ans: 1 },
+            { cat: 7, diff: "leicht", pts: 1, q: "Hat der Uranus Ringe?", opts: ["A) Ja, aber sie sind dunkel", "B) Nein, gar keine", "C) Ja, sie leuchten sehr hell"], ans: 0 },
+            { cat: 7, diff: "leicht", pts: 1, q: "Wie ist die Temperatur auf dem Uranus?", opts: ["A) Sehr heiß", "B) Extrem kalt", "C) Wie im Sommer"], ans: 1 },
+            { cat: 7, diff: "leicht", pts: 1, q: "Wie viele Monde hat der Uranus etwa?", opts: ["A) Einen", "B) 27", "C) Über 500"], ans: 1 },
+            { cat: 7, diff: "mittel", pts: 2, q: "Wer entdeckte den Uranus im Jahr 1781 mit einem selbstgebauten Fernrohr?", opts: ["A) William Herschel", "B) Christopher Kolumbus", "C) Isaac Newton"], ans: 0 },
+            { cat: 7, diff: "mittel", pts: 2, q: "Welches Gas in der Atmosphäre des Uranus sorgt für seine bläuliche Farbe?", opts: ["A) Sauerstoff", "B) Methan", "C) Kohlendioxid"], ans: 1 },
+            { cat: 7, diff: "mittel", pts: 2, q: "Wie lange braucht der Uranus für eine Runde um die Sonne?", opts: ["A) 84 Jahre", "B) 10 Jahre", "C) 365 Tage"], ans: 0 },
+            { cat: 7, diff: "mittel", pts: 2, q: "Wonach sind viele Uranusmonde benannt?", opts: ["A) Nach Göttern", "B) Nach Shakespeare-Figuren", "C) Nach Fußballern"], ans: 1 },
+            { cat: 7, diff: "mittel", pts: 2, q: "Wie oft wurde Uranus von einer Sonde besucht?", opts: ["A) Nur ein Mal", "B) Jedes Jahr", "C) Noch nie"], ans: 0 },
+            { cat: 7, diff: "mittel", pts: 2, q: "Wie groß ist der Uranus etwa?", opts: ["A) 4-mal so breit wie die Erde", "B) Genau so groß", "C) Kleiner als der Mond"], ans: 0 },
+
+            { cat: 8, diff: "leicht", pts: 1, q: "Welchen Beinamen könnte man dem Neptun wegen seiner Farbe geben?", opts: ["A) Der grüne Riese", "B) Der blaue Riese", "C) Der graue Fels"], ans: 1 },
+            { cat: 8, diff: "leicht", pts: 1, q: "Welche Farbe hat der Neptun?", opts: ["A) Tiefblau", "B) Gelb", "C) Grau"], ans: 0 },
+            { cat: 8, diff: "leicht", pts: 1, q: "Was ist auf dem Neptun besonders stark?", opts: ["A) Der Regen", "B) Der Wind", "C) Die Sonne"], ans: 1 },
+            { cat: 8, diff: "leicht", pts: 1, q: "Was für ein Planet ist der Neptun?", opts: ["A) Gesteinsplanet", "B) Eisriese", "C) Gasplanet"], ans: 1 },
+            { cat: 8, diff: "leicht", pts: 1, q: "Wie heißt der größte Mond des Neptun?", opts: ["A) Triton", "B) Titan", "C) Trixi"], ans: 0 },
+            { cat: 8, diff: "leicht", pts: 1, q: "Sieht man Neptun ohne Fernrohr?", opts: ["A) Ja, er ist hell", "B) Nein, er ist zu weit weg", "C) Nur mittags"], ans: 1 },
+            { cat: 8, diff: "mittel", pts: 2, q: "Wie lange dauert ein Jahr auf dem Neptun?", opts: ["A) Etwa 165 Erdjahre", "B) 2 Jahre", "C) 50 Jahre"], ans: 0 },
+            { cat: 8, diff: "mittel", pts: 2, q: "Was war der „Große Dunkle Fleck“?", opts: ["A) Ein Krater", "B) Ein Sturm", "C) Ein Schatten"], ans: 1 },
+            { cat: 8, diff: "mittel", pts: 2, q: "Wie wurde der Neptun entdeckt?", opts: ["A) Durch Zufall", "B) Er wurde zuerst berechnet", "C) Durch Astronauten"], ans: 1 },
+            { cat: 8, diff: "mittel", pts: 2, q: "Wie schnell weht der Wind auf Neptun?", opts: ["A) Bis zu 2.100 km/h", "B) 10 km/h", "C) 100 km/h"], ans: 0 },
+            { cat: 8, diff: "mittel", pts: 2, q: "Was macht der Mond Triton Besonderes?", opts: ["A) Er ist eckig", "B) Er läuft rückwärts um den Planeten", "C) Er brennt"], ans: 1 },
+            { cat: 8, diff: "mittel", pts: 2, q: "Wie viele Planeten sind noch weiter von der Sonne entfernt als der Neptun?", opts: ["A) Keiner, er ist der letzte Planet", "B) Nur noch der Mars", "C) Genau drei"], ans: 0 }
+        ];
+
+        questionsDB.forEach(q => q.used = false);
+
+        let teams = [];
+        let scores = [0, 0, 0, 0];
+        let currentTeamIdx = 0;
+        let isSpinning = false;
+        let currentQuestion = null;
+        let currentRotation = 0;
+
+        const labelsContainer = document.getElementById('wheel-labels');
+        const sliceAngle = 360 / categories.length; 
+        categories.forEach((cat, index) => {
+            let label = document.createElement('div');
+            label.className = 'wheel-label';
+            label.innerText = cat;
+            let angle = (index * sliceAngle) + (sliceAngle / 2) - 90;
+            label.style.transform = `rotate(${angle}deg)`;
+            labelsContainer.appendChild(label);
+        });
+
+        function startGame() {
+            teams = [
+                document.getElementById('t1').value || "Team 1",
+                document.getElementById('t2').value || "Team 2",
+                document.getElementById('t3').value || "Team 3",
+                document.getElementById('t4').value || "Team 4"
+            ];
+            
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            updateScoreboard();
+        }
+
+        function restartGame() {
+            scores = [0, 0, 0, 0];
+            currentTeamIdx = 0;
+            currentRotation = 0;
+            document.getElementById('wheel').style.transform = `rotate(0deg)`;
+            
+            questionsDB.forEach(q => q.used = false);
+            
+            document.getElementById('win-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('setup-screen').style.display = 'flex';
+        }
+
+        function updateScoreboard() {
+            for(let i = 0; i < 4; i++) {
+                let el = document.getElementById(`score-${i}`);
+                el.innerText = `${teams[i]}: ${scores[i]}`;
+                if (i === currentTeamIdx) {
+                    el.classList.add('active-team');
+                } else {
+                    el.classList.remove('active-team');
+                }
+            }
+            document.getElementById('spin-btn').innerText = `${teams[currentTeamIdx]}: Rad drehen!`;
+        }
+
+        function pickRandomAvailableCategory() {
+            let availableCats = [];
+            for(let i=0; i<9; i++) {
+                if(questionsDB.some(q => q.cat === i && !q.used)) {
+                    availableCats.push(i);
+                }
+            }
+            if(availableCats.length === 0) return -1; 
+            return availableCats[Math.floor(Math.random() * availableCats.length)];
+        }
+
+        function spinWheel() {
+            if(isSpinning) return;
+            
+            let targetCategory = pickRandomAvailableCategory();
+            
+            if(targetCategory === -1) {
+                alert("Keine Fragen mehr übrig! Das Spiel ist vorbei.");
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById('spin-btn').disabled = true;
+
+            let randomOffset = Math.floor(Math.random() * 30) + 5; 
+            let pointToLandOn = (targetCategory * 40) + randomOffset;
+            
+            let currentMod = currentRotation % 360;
+            let desiredMod = (360 - pointToLandOn) % 360; 
+            
+            let rotationToAdd = desiredMod - currentMod;
+            if (rotationToAdd <= 0) {
+                rotationToAdd += 360;
+            }
+            
+            rotationToAdd += 360 * 5; 
+            currentRotation += rotationToAdd;
+
+            const wheel = document.getElementById('wheel');
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                showQuestion(targetCategory);
+                isSpinning = false;
+                document.getElementById('spin-btn').disabled = false;
+            }, 4000); 
+        }
+
+        function showQuestion(catIdx) {
+            let availableQuestions = questionsDB.filter(q => q.cat === catIdx && !q.used);
+            let randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            currentQuestion = availableQuestions[randomIndex];
+            currentQuestion.used = true;
+
+            document.getElementById('q-category').innerHTML = `<h3 style="margin:0 0 1vmin 0; font-size: clamp(20px, 4vmin, 26px);">Kategorie: ${categories[catIdx]}</h3>`;
+            
+            let diffBadge = document.getElementById('q-difficulty');
+            diffBadge.innerText = currentQuestion.diff === 'leicht' ? 'Leicht (1 Punkt)' : 'Mittel (2 Punkte)';
+            diffBadge.className = `diff-badge ${currentQuestion.diff === 'leicht' ? 'badge-leicht' : 'badge-mittel'}`;
+            
+            document.getElementById('q-text').innerText = currentQuestion.q;
+            
+            let optsContainer = document.getElementById('q-options');
+            optsContainer.innerHTML = '';
+            
+            currentQuestion.opts.forEach((optText, i) => {
+                let btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = optText;
+                btn.onclick = () => selectAnswer(i, btn);
+                optsContainer.appendChild(btn);
+            });
+
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('question-modal').style.display = 'flex';
+        }
+
+        function selectAnswer(selectedIndex, btnElement) {
+            if(document.getElementById('next-btn').style.display === 'block') return; 
+
+            let btns = document.querySelectorAll('.option-btn');
+            
+            if(selectedIndex === currentQuestion.ans) {
+                btnElement.classList.add('correct');
+                scores[currentTeamIdx] += currentQuestion.pts;
+            } else {
+                btnElement.classList.add('wrong');
+                btns[currentQuestion.ans].classList.add('correct'); 
+            }
+
+            document.getElementById('next-btn').style.display = 'block';
+            updateScoreboard();
+        }
+
+        function nextTurn() {
+            document.getElementById('question-modal').style.display = 'none';
+            
+            if(scores[currentTeamIdx] >= 10) {
+                document.getElementById('win-team-name').innerText = `${teams[currentTeamIdx]} hat das Spiel gewonnen!`;
+                document.getElementById('win-screen').style.display = 'flex';
+                return; 
+            }
+
+            currentTeamIdx = (currentTeamIdx + 1) % 4;
+            updateScoreboard();
+        }
+    </script>
+</body>
+</html>
