@@ -275,6 +275,37 @@
       outline: 2px solid var(--accent);
       outline-offset: 3px;
     }
+
+    /* ── Download link ── */
+    .btn-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .dl-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .75rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 2px 6px;
+      border-radius: 6px;
+      align-self: flex-start;
+      margin-left: 4px;
+      transition: color .2s, background .2s;
+    }
+
+    .dl-link:hover {
+      color: var(--accent);
+      background: var(--accent-bg);
+      text-decoration: none;
+    }
+
+    .dl-icon {
+      font-size: .8rem;
+    }
   </style>
 </head>
 <body>
@@ -287,47 +318,66 @@
 
     <nav class="btn-list">
 
-      <a href="Fachbegriffsverbot.html" class="btn">
-        <span class="btn-label">
-         Fachbegriffsverbot
-        </span>
-        <span class="btn-arrow">→</span>
-      </a>
+      <div class="btn-wrap">
+        <a href="Fachbegriffsverbot.html" class="btn">
+          <span class="btn-label">Fachbegriffsverbot</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="Fachbegriffsverbot.html" class="dl-link" download>
+          <span class="dl-icon">⬇</span> HTML herunterladen
+        </a>
+      </div>
 
-      <a href="Wissenswand.html" class="btn">
-        <span class="btn-label">
-         Wissenswand
-        </span>
-        <span class="btn-arrow">→</span>
-      </a>
+      <div class="btn-wrap">
+        <a href="Wissenswand.html" class="btn">
+          <span class="btn-label">Wissenswand</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="Wissenswand.html" class="dl-link" download>
+          <span class="dl-icon">⬇</span> HTML herunterladen
+        </a>
+      </div>
 
-      <a href="Mathe-Match.html" class="btn">
-        <span class="btn-label">
-         Mathe-Match
-        </span>
-        <span class="btn-arrow">→</span>
-      </a>
+      <div class="btn-wrap">
+        <a href="Mathe-Match.html" class="btn">
+          <span class="btn-label">Mathe-Match</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="Mathe-Match.html" class="dl-link" download>
+          <span class="dl-icon">⬇</span> HTML herunterladen
+        </a>
+      </div>
 
-      <a href="Quiz-Rad.html" class="btn">
-        <span class="btn-label">
-         Quiz-Rad
-        </span>
-        <span class="btn-arrow">→</span>
-      </a>
-	  
-   <a href="digitale-Flucht.html" class="btn">
-        <span class="btn-label">
-         Digitale Flucht
-        </span>
-        <span class="btn-arrow">→</span>
-      </a>
-	  
-	  <a href="Schatzinsel.html" class="btn">
-        <span class="btn-label">
-         Schatzinsel
-        </span>
-        <span class="btn-arrow">→</span>
-      </a>
+      <div class="btn-wrap">
+        <a href="Quiz-Rad.html" class="btn">
+          <span class="btn-label">Quiz-Rad</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="Quiz-Rad.html" class="dl-link" download>
+          <span class="dl-icon">⬇</span> HTML herunterladen
+        </a>
+      </div>
+
+      <div class="btn-wrap">
+        <a href="digitale-Flucht.html" class="btn">
+          <span class="btn-label">Digitale Flucht</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="digitale-Flucht.html" class="dl-link" download>
+          <span class="dl-icon">⬇</span> HTML herunterladen
+        </a>
+      </div>
+
+      <div class="btn-wrap">
+        <a href="Schatzinsel.html" class="btn">
+          <span class="btn-label">Schatzinsel</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="Schatzinsel.html" class="dl-link" download>
+          <span class="dl-icon">⬇</span> HTML herunterladen
+        </a>
+      </div>
+
     </nav>
 
   
