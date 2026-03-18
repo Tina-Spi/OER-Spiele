@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Schatzinsel</title>
+    <style>
+        /* Absolutes Verbot von Rändern und Scrollen */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100dvh;
+            overflow: hidden; /* Scrollen komplett deaktiviert */
+            background: linear-gradient(to bottom, #4fc3f7 0%, #e1f5fe 60%, #ffe082 100%);
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        *, *::before, *::after {
+            box-sizing: inherit;
+        }
+
+        /* Hauptcontainer */
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            padding: 2vmin;
+            align-items: center;
+        }
+
+        /* --- KOPFBEREICH --- */
+        #header-area {
+            flex: 0 0 auto;
+            text-align: center;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #01579b;
+            margin: 0 0 1dvh 0;
+            font-size: clamp(26px, 6vmin, 46px); 
+            font-weight: bold;
+        }
+        
+        #attempts-display {
+            font-size: clamp(14px, 3vmin, 20px);
+            font-weight: bold;
+            color: #d84315;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 0.5dvh 3dvw;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        #message {
+            flex: 0 0 auto;
+            font-size: clamp(14px, 3vmin, 20px);
+            font-weight: bold;
+            min-height: 3dvh;
+            color: #d32f2f;
+            margin: 1dvh 0;
+            text-align: center;
+            word-wrap: break-word;
+        }
+
+        /* --- SPIELBEREICH --- */
+        #game-layout {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1000px;
+            gap: 2vmin;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+
+        @media (min-width: 768px) and (orientation: landscape) {
+            #game-layout {
+                flex-direction: row;
+            }
+            #left-panel { flex: 1 1 40% !important; }
+            #right-panel { flex: 1 1 60% !important; }
+        }
+
+        /* --- INSEL --- */
+        #left-panel {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        
+        svg {
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* --- EINGABE & TASTATUR --- */
+        #right-panel {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            gap: 1.5dvh;
+        }
+
+        #word-display {
+            flex: 0 0 auto;
+            font-size: clamp(20px, 6vmin, 50px);
+            letter-spacing: 1.5dvw;
+            font-weight: bold;
+            color: #0277bd;
+            text-align: center;
+            word-break: break-all;
+            margin-bottom: 1dvh;
+        }
+
+        /* --- TASTATUR QWERTZ --- */
+        #keyboard {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8dvh;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.8dvw;
+            width: 100%;
+        }
+        
+        .key {
+            width: clamp(24px, 7vw, 45px);
+            height: clamp(36px, 9vw, 55px);
+            flex: 0 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            font-size: clamp(14px, 3.5vmin, 22px);
+            font-weight: bold;
+            background-color: #29b6f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 0.4dvh #0288d1;
+            transition: all 0.1s;
+        }
+        
+        .key:active {
+            box-shadow: 0 0 #0288d1;
+            transform: translateY(0.4dvh);
+        }
+        
+        .key:disabled {
+            background-color: #b0bec5;
+            color: #78909c;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Lösungsfeld */
+        #full-word-section {
+            flex: 0 0 auto;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 1.5dvh 2dvw;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1dvh;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 3dvh; /* Hier ist der neue, größere Abstand */
+        }
+        
+        #full-word-section p {
+            margin: 0;
+            font-weight: bold;
+            color: #5d4037;
+            font-size: clamp(12px, 2.5vmin, 18px);
+        }
+        
+        .input-group {
+            display: flex;
+            width: 100%;
+            gap: 1dvw;
+            justify-content: center;
+        }
+        
+        input[type="text"] {
+            flex: 1 1 auto;
+            min-width: 0;
+            padding: 1dvh;
+            font-size: clamp(14px, 3vmin, 18px);
+            border: 2px solid #ffca28;
+            border-radius: 8px;
+            outline: none;
+            text-align: center;
+        }
+        
+        button.action-btn {
+            flex: 0 0 auto;
+            padding: 1dvh 3dvw;
+            font-size: clamp(14px, 3vmin, 18px);
+            background-color: #ffca28;
+            color: #5d4037;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0.5dvh #ffb300;
+        }
+        
+        button.action-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 0.2dvh #ffb300;
+        }
+
+        /* --- FOOTER --- */
+        .page-footer {
+            flex: 0 0 auto;
+            width: 100%;
+            text-align: center;
+            font-size: clamp(10px, 2vmin, 14px);
+            padding-top: 1dvh;
+            color: #555;
+            margin-top: 1dvh;
+        }
+        
+        .page-footer a {
+            color: #01579b;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .page-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .page-footer img {
+            vertical-align: middle;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <div id="header-area">
+            <h1>🌴 Das Schatzwörter-Inselspiel 🌴</h1>
+            <div id="attempts-display">Noch 7 Versuche!</div>
+        </div>
+        
+        <div id="message"></div>
+
+        <div id="game-layout">
+            <div id="left-panel">
+                <svg viewBox="0 0 300 250" xmlns="http://www.w3.org/2000/svg">
+                    <g id="part1" class="hidden">
+                        <path d="M0 220 Q 75 190 150 220 T 300 220 L 300 250 L 0 250 Z" fill="#0288d1"/>
+                    </g>
+                    <g id="part2" class="hidden">
+                        <ellipse cx="150" cy="225" rx="80" ry="25" fill="#ffe082"/>
+                    </g>
+                    <g id="part3" class="hidden">
+                        <path d="M140 220 Q 150 130 180 80 Q 165 140 160 220 Z" fill="#795548"/>
+                    </g>
+                    <g id="part4" class="hidden">
+                        <path d="M180 80 Q 120 50 100 90 Q 140 90 180 80" fill="#66bb6a"/>
+                        <path d="M180 80 Q 140 20 130 50 Q 160 60 180 80" fill="#4caf50"/>
+                    </g>
+                    <g id="part5" class="hidden">
+                        <path d="M180 80 Q 240 50 260 90 Q 220 90 180 80" fill="#66bb6a"/>
+                        <path d="M180 80 Q 220 20 230 50 Q 200 60 180 80" fill="#4caf50"/>
+                        <path d="M180 80 Q 180 10 200 20 Q 190 50 180 80" fill="#43a047"/>
+                    </g>
+                    <g id="part6" class="hidden">
+                        <circle cx="50" cy="50" r="30" fill="#ffee58"/>
+                    </g>
+                    <g id="part7" class="hidden">
+                        <circle cx="170" cy="85" r="8" fill="#5d4037"/>
+                        <circle cx="185" cy="85" r="8" fill="#4e342e"/>
+                    </g>
+                </svg>
+            </div>
+
+            <div id="right-panel">
+                <div id="word-display">_ _ _ _ _</div>
+                
+                <div id="keyboard"></div>
+                
+                <div id="full-word-section">
+                    <p>Weißt du das Wort schon?</p>
+                    <div class="input-group">
+                        <input type="text" id="full-word-input" placeholder="Wort eingeben..." autocomplete="off">
+                        <button class="action-btn" onclick="guessFullWord()">Lösen</button>
+                    </div>
+                </div>
+
+                <div>
+                    <button id="next-btn" class="action-btn hidden" onclick="nextWord()">Nächstes Wort</button>
+                    <button id="restart-btn" class="action-btn hidden" onclick="restartGame()">Spiel neu starten</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="page-footer">
+            <a href="https://example.com">Schatzinsel</a> © 2026 by <a href="https://www.ph-noe.ac.at/de/personen/martina-spitaler"> Martina Spitaler </a> &amp;  <a href="https://www.ph-noe.ac.at/de/personen/claudia-petz">Claudia Petz</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a>
+            <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width:1.2em;max-height:1.2em;margin-left:.2em;">
+            <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width:1.2em;max-height:1.2em;margin-left:.2em;">
+            <img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width:1.2em;max-height:1.2em;margin-left:.2em;">
+            <img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width:1.2em;max-height:1.2em;margin-left:.2em;">
+        </footer>
+
+    </div>
+
+<script>
+    const originalWords = ["wählen", "ehrlich", "Lehrerin", "Lehrer", "wahrscheinlich", "zahlen", "froh", "fehlen"];
+    
+    // Zufalls-Funktion (Fisher-Yates Shuffle)
+    function shuffleArray(array) {
+        let shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    // Beim allerersten Start die Wörter direkt mischen
+    let words = shuffleArray(originalWords);
+    
+    let currentWord = "";
+    let guessedLetters = [];
+    let mistakes = 0;
+    const maxMistakes = 7;
+
+    const wordDisplay = document.getElementById("word-display");
+    const keyboardDiv = document.getElementById("keyboard");
+    const messageDiv = document.getElementById("message");
+    const nextBtn = document.getElementById("next-btn");
+    const restartBtn = document.getElementById("restart-btn");
+    const fullWordInput = document.getElementById("full-word-input");
+    const fullWordSection = document.getElementById("full-word-section");
+    const attemptsDisplay = document.getElementById("attempts-display");
+
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ".split("");
+
+    const keyboardRows = [
+        ["Q", "W", "E", "R", "T", "Z", "U", "I", "O", "P", "Ü"],
+        ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ö", "Ä"],
+        ["Y", "X", "C", "V", "B", "N", "M"]
+    ];
+
+    fullWordInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            guessFullWord();
+        }
+    });
+
+    document.addEventListener("keydown", function(event) {
+        if (document.activeElement === fullWordInput) {
+            return;
+        }
+        
+        const key = event.key.toUpperCase();
+        if (alphabet.includes(key)) {
+            const buttons = keyboardDiv.getElementsByClassName("key");
+            for (let btn of buttons) {
+                if (btn.innerText === key && !btn.disabled) {
+                    btn.click();
+                    break;
+                }
+            }
+        }
+    });
+
+    function initGame() {
+        if (words.length === 0) {
+            showVictory();
+            return;
+        }
+        
+        currentWord = words[0].toUpperCase();
+        guessedLetters = [];
+        mistakes = 0;
+        
+        messageDiv.innerText = "";
+        fullWordInput.value = "";
+        nextBtn.classList.add("hidden");
+        fullWordSection.classList.remove("hidden");
+        keyboardDiv.classList.remove("hidden");
+        updateAttemptsDisplay();
+        
+        hideAllIslandParts();
+        createKeyboard();
+        updateWordDisplay();
+        
+        fullWordInput.focus();
+    }
+
+    function createKeyboard() {
+        keyboardDiv.innerHTML = "";
+        keyboardRows.forEach(row => {
+            const rowDiv = document.createElement("div");
+            rowDiv.className = "keyboard-row";
+            row.forEach(letter => {
+                const btn = document.createElement("button");
+                btn.innerText = letter;
+                btn.className = "key";
+                btn.onclick = () => handleGuess(letter, btn);
+                rowDiv.appendChild(btn);
+            });
+            keyboardDiv.appendChild(rowDiv);
+        });
+    }
+
+    function handleGuess(letter, btn) {
+        btn.disabled = true;
+        guessedLetters.push(letter);
+
+        if (currentWord.includes(letter)) {
+            updateWordDisplay();
+            checkWin();
+        } else {
+            addMistake();
+        }
+        
+        fullWordInput.focus();
+    }
+
+    function updateWordDisplay() {
+        let display = "";
+        for (let char of currentWord) {
+            if (guessedLetters.includes(char)) {
+                display += char + " ";
+            } else {
+                display += "_ ";
+            }
+        }
+        wordDisplay.innerText = display.trim();
+    }
+
+    function guessFullWord() {
+        const guess = fullWordInput.value.toUpperCase().trim();
+        if (!guess) return;
+
+        if (guess === currentWord) {
+            wordDisplay.innerText = currentWord.split('').join(' ');
+            handleWin();
+        } else {
+            fullWordInput.value = "";
+            messageDiv.innerText = "Oh nein, das war nicht ganz richtig!";
+            messageDiv.style.color = "#d32f2f";
+            addMistake();
+            fullWordInput.focus();
+        }
+    }
+
+    function addMistake() {
+        mistakes++;
+        updateAttemptsDisplay();
+        showIslandPart(mistakes);
+        if (mistakes >= maxMistakes) {
+            gameOver();
+        }
+    }
+
+    function updateAttemptsDisplay() {
+        const remaining = maxMistakes - mistakes;
+        if (remaining > 1) {
+            attemptsDisplay.innerText = `Noch ${remaining} Versuche!`;
+            attemptsDisplay.style.color = "#d84315";
+        } else if (remaining === 1) {
+            attemptsDisplay.innerText = "Letzter Versuch!";
+            attemptsDisplay.style.color = "#c62828";
+        } else {
+            attemptsDisplay.innerText = "Keine Versuche mehr!";
+        }
+    }
+
+    function showIslandPart(partNumber) {
+        if (partNumber <= maxMistakes) {
+            document.getElementById("part" + partNumber).classList.remove("hidden");
+        }
+    }
+
+    function hideAllIslandParts() {
+        for (let i = 1; i <= maxMistakes; i++) {
+            document.getElementById("part" + i).classList.add("hidden");
+        }
+    }
+
+    function checkWin() {
+        let won = true;
+        for (let char of currentWord) {
+            if (!guessedLetters.includes(char)) {
+                won = false;
+                break;
+            }
+        }
+        if (won) {
+            handleWin();
+        }
+    }
+
+    function handleWin() {
+        messageDiv.innerText = "Super gemacht! Wort erraten! 🎉";
+        messageDiv.style.color = "#2e7d32";
+        disableGame();
+        nextBtn.classList.remove("hidden");
+        nextBtn.focus();
+    }
+
+    function gameOver() {
+        messageDiv.innerText = `Schade! Das Wort war: ${words[0]}`;
+        messageDiv.style.color = "#c62828";
+        wordDisplay.innerText = currentWord.split('').join(' ');
+        disableGame();
+        nextBtn.classList.remove("hidden");
+        nextBtn.focus();
+    }
+
+    function disableGame() {
+        fullWordSection.classList.add("hidden");
+        keyboardDiv.classList.add("hidden");
+    }
+
+    function nextWord() {
+        words.shift();
+        initGame();
+    }
+
+    function showVictory() {
+        wordDisplay.innerText = "🏆";
+        messageDiv.innerText = "Herzlichen Glückwunsch! Du hast alle Schatzwörter der Woche geschafft!";
+        messageDiv.style.color = "#f57c00";
+        keyboardDiv.innerHTML = "";
+        fullWordSection.classList.add("hidden");
+        nextBtn.classList.add("hidden");
+        restartBtn.classList.remove("hidden");
+        attemptsDisplay.classList.add("hidden");
+        
+        for(let i=1; i<=maxMistakes; i++){
+            showIslandPart(i);
+        }
+    }
+
+    function restartGame() {
+        // Beim Neustart werden die Wörter wieder komplett neu gemischt
+        words = shuffleArray(originalWords);
+        restartBtn.classList.add("hidden");
+        attemptsDisplay.classList.remove("hidden");
+        initGame();
+    }
+
+    window.onload = initGame;
+</script>
+
+</body>
+</html>
