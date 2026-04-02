@@ -1,0 +1,526 @@
+<! #Dieser Code wurde generiert mit Gemini 3.1 Pro (Google, 2026)
+   # prompted by & manuell nachgebessert von Martina Spitaler & Claudia Petz
+   # Datum 16.03.2026>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digitale Flucht</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #0f172a);
+            color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+        }
+        .container {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+            max-width: 900px;
+            width: 100%;
+            border: 1px solid #0f3460;
+        }
+        h1, h2, h3 { margin-top: 0; }
+        h1 { color: #e94560; text-align: center; }
+        h2 { color: #7dd3fc; }
+        p, li { line-height: 1.6; }
+        .hidden { display: none; }
+        .intro-box, .question-block, .success-box {
+            background: rgba(15, 52, 96, 0.6);
+            border: 1px solid rgba(125, 211, 252, 0.15);
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 18px;
+        }
+        .warning {
+            background: rgba(233, 69, 96, 0.12);
+            border-left: 4px solid #e94560;
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin: 18px 0;
+        }
+        .statusbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: #0f3460;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        .question {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 14px 0;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .options label:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #355c8a;
+            background: #0b1324;
+            color: #fff;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+        .code-area {
+            margin-top: 22px;
+            padding: 16px;
+            background: rgba(233, 69, 96, 0.08);
+            border: 1px dashed #e94560;
+            border-radius: 12px;
+        }
+        .code-input {
+            max-width: 220px;
+            text-align: center;
+            letter-spacing: 4px;
+            font-size: 1.3rem !important;
+            font-weight: bold;
+        }
+        button {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.25s;
+            margin-top: 16px;
+            font-weight: 600;
+        }
+        button:hover { background: #ff2e63; transform: translateY(-1px); }
+        .secondary {
+            background: #355c8a;
+        }
+        .secondary:hover { background: #4474ac; }
+        .feedback {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .success { background: rgba(46, 204, 113, 0.14); color: #9ff0ba; }
+        .error { background: rgba(231, 76, 60, 0.14); color: #ffb3a9; }
+        .block-title { display: flex; align-items: center; gap: 10px; }
+        .final-code {
+            font-size: 2rem;
+            letter-spacing: 6px;
+            font-weight: bold;
+            color: #9ff0ba;
+            text-align: center;
+            margin: 14px 0;
+        }
+        @media (max-width: 700px) {
+            .container { padding: 18px; }
+            body { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="introScreen">
+        <h1>💻 Digitale Flucht</h1>
+        <div class="intro-box">
+            <p>Alarm im Computerraum: Das <strong>Schulnetzwerk wird von Hackern bedroht</strong>. Nur wenn alle Sicherheitsrätsel richtig gelöst werden, kann das Netzwerk rechtzeitig gesichert werden.</p>
+            <div class="warning">
+                <strong>Deine Mission:</strong> Löse 8 Fragenblöcke zu Themen der digitalen Bildung. Aus den richtigen Antworten entsteht pro Block ein Zahlencode mit 3 oder 4 Ziffern. Erst wenn du den passenden Code eingibst, wird der nächste Block freigeschaltet.
+            </div>
+            <h3>So funktioniert das Spiel</h3>
+            <ul>
+                <li>Beantworte die 3 Fragen eines Blocks.</li>
+                <li>Setze aus den richtigen Antworten den Code zusammen.</li>
+                <li>Gib den Code unten in das Zifferenfeld ein.</li>
+                <li>Nur mit dem richtigen Code geht es weiter.</li>
+            </ul>
+            <p><strong>Bereit, das Netzwerk zu retten?</strong></p>
+            <button onclick="startGame()">Mission starten</button>
+        </div>
+    </div>
+
+    <div id="gameScreen" class="hidden">
+        <div class="statusbar">
+            <div><strong>Mission:</strong> Schulnetzwerk sichern</div>
+            <div><strong>Fortschritt:</strong> <span id="progressText">1 / 8</span></div>
+            <div><strong>Freigeschaltete Codes:</strong> <span id="solvedCount">0</span></div>
+        </div>
+        <div id="blockContainer"></div>
+    </div>
+
+    <div id="successScreen" class="hidden">
+        <h1>🔓 Netzwerk gesichert</h1>
+        <div class="success-box">
+            <p>Geschafft! Du hast alle Rätsel gelöst und die Sicherheitsbarrieren des Schulnetzwerks wieder aktiviert.</p>
+            <p>Die Hacker wurden gestoppt, alle Fragenblöcke erfolgreich entschlüsselt und das <strong>Schulnetzwerk ist nun wieder frei</strong>.</p>
+            <div class="final-code" id="finalSummary">8/8 Blöcke gelöst</div>
+            <button onclick="location.reload()">Nochmal spielen</button>
+        </div>
+    </div>
+	<div class="footer">
+        <a href="https://tina-spi.github.io/OER-Spiele/Digitale-Flucht.html">Die Digitale Flucht</a> © 2026 by <a href="https://www.ph-noe.ac.at/de/personen/martina-spitaler"> Martina Spitaler </a> &amp;  <a href="https://www.ph-noe.ac.at/de/personen/claudia-petz">Claudia Petz</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;">
+    </div>
+</div>
+
+    
+
+<script>
+const blocks = [
+    {
+        title: '🔐 Datenschutz im Netz',
+        code: '4416',
+        questions: [
+            {
+                text: 'Gib an, wie viele der folgenden Begriffe personenbezogene Daten sind: <br> Name, Geburtsdatum, Schuhgröße, E-Mail-Adresse, Lieblingsfarbe, IP-Adresse',
+                type: 'number',
+                answer: '4'
+            },
+            {
+                text: 'Wie heißt die europäische Verordnung zum Datenschutz? <br>Gesucht ist der erste Buchstabe. Wandle ihn in seine Position im Alphabet um: A=1, B=2, C=3, ...',
+                type: 'number',
+                answer: '4',
+            },
+            {
+                text: 'Wie nennt man das unerwünschte Sammeln von Nutzerdaten, um ein Verhaltensbild zu erstellen? <br>Gesucht ist der erste Buchstabe. Wandle ihn in seine Position im Alphabet um: A=1, B=2, C=3, ...',
+                type: 'mc',
+                options: [
+                    { label: 'Tracking', value: '20' },
+                    { label: 'Profiling', value: '16' },
+                    { label: 'Verschlüsselung', value: '22' }
+                ],
+                answer: '16',
+            }
+        ]
+    },
+    {
+        title: '🔒 Datensicherheit',
+        code: '263',
+        questions: [
+            {
+                text: 'Was versteht man unter dem Begriff <b>Phishing</b>?<br>Die Position der richtigen Lösung ist Teil des Codes (siehe Ziffer in Klammer).',
+                type: 'mc',
+                options: [
+                    { label: '(1) Ein Update', value: '1' },
+                    { label: '(2) Ein Passwort-Diebstahl per Fake-Mail', value: '2' },
+                    { label: '(3) Ein Antivirus-Programm', value: '3' }
+                ],
+                answer: '2'
+            },
+            {
+                text: 'Wie heißt die Barriere, die das Netzwerk schützt? <br>Gesucht ist der erste Buchstabe als Position im Alphabet.',
+                type: 'number',
+                answer: '6',
+            },
+            {
+                text: 'Welches dieser Passwörter ist am sichersten?<br>Die Position der richtigen Lösung ist Teil des Codes (siehe Ziffer in Klammer).',
+                type: 'mc',
+                options: [
+                    { label: '(1) Passwort123', value: '1' },
+                    { label: '(2) Tina24042010', value: '2' },
+                    { label: '(3) mHghidSu1715!', value: '3' }
+                ],
+                answer: '3'
+            }
+        ]
+    },
+    {
+        title: '🌐 Netzwerke',
+        code: '132',
+        questions: [
+            {
+                text: 'Was ist ein Router?<br>Die Position der richtigen Lösung ist Teil des Codes (siehe Ziffer in Klammer).',
+                type: 'mc',
+                options: [
+                    { label: '(1) Ein Verteiler für Datenpakete.', value: '1' },
+                    { label: '(2) Ein langes Netzwerkkabel.', value: '2' },
+                    { label: '(3) Ein Programm zum Surfen.', value: '3' }
+                ],
+                answer: '1'
+            },
+            {
+                text: 'Wie viele der folgenden Dinge braucht man zwingend für ein WLAN zu Hause?<br> Router, Strom, Internetanschluss, Drucker, Tastatur',
+                type: 'number',
+                answer: '3'
+            },
+            {
+                text: 'Welche Adresse braucht jeder Computer im Netzwerk, um eindeutig identifizierbar zu sein?<br>Die Position der richtigen Lösung ist Teil des Codes (siehe Ziffer in Klammer).',
+                type: 'mc',
+                options: [
+                    { label: '(1) Seriennummer', value: '1' },
+                    { label: '(2) IP-Adresse', value: '2' },
+                    { label: '(3) E-Mail-Adresse', value: '3' }
+                ],
+                answer: '2'
+            }
+        ]
+    },
+    {
+        title: '💻 Hardware & Betriebssystem',
+        code: '3319',
+        questions: [
+            {
+                text: 'Wie viele dieser Geräte sind Eingabegeräte? <br>Maus, Monitor, Tastatur, Scanner, Lautsprecher',
+                type: 'number',
+                answer: '3'
+            },
+            {
+                text: 'Was ist das „Gehirn“ des Computers? <br>Die Position der richtigen Lösung ist Teil des Codes(siehe Ziffer in Klammer).',
+                type: 'mc',
+                options: [
+                    { label: '(1) Die Grafikkarte', value: '1' },
+                    { label: '(2) Die Festplatte', value: '2' },
+                    { label: '(3) Der Prozessor (CPU)', value: '3' }
+                ],
+                answer: '3'
+            },
+            {
+                text: 'Welches Betriebssystem nutzt ein iPhone? <br>Gesucht ist der letzte Buchstabe als Position im Alphabet.',
+                type: 'number',
+                answer: '19',
+            }
+        ]
+    },
+    {
+        title: '🤖 Algorithmus & Coding',
+        code: '2322',
+        questions: [
+            {
+                text: 'Was ist eine <b>Schleife (Loop)</b>? <br>Die Position der richtigen Lösung ist Teil des Codes(siehe Ziffer in Klammer).',
+                type: 'mc',
+                options: [
+                    { label: '(1) Ein Fehler im Code', value: '1' },
+                    { label: '(2) Eine Wiederholung von Befehlen', value: '2' },
+                    { label: '(3) Ein grafisches Element', value: '3' }
+                ],
+                answer: '2'
+            },
+            {
+                text: 'Wie viele dieser Begriffe sind typische Bausteine beim Programmieren? <br> Schleife (Loop) – Bedingung (If-Then) – Variable – Pixel',
+                type: 'number',
+                answer: '3'
+            },
+            {
+                text: 'Wie nennt man den Platzhalter für veränderbare Werte? <br>Gesucht ist der erste Buchstabe als Position im Alphabet.',
+                type: 'number',
+                answer: '22',
+            }
+        ]
+    },
+    {
+        title: '🖼️ Urheberrecht',
+        code: '230',
+        questions: [
+            {
+                text: 'Was bedeutet das © Symbol?<br>Die Position der richtigen Lösung ist Teil des Codes (siehe Ziffer in Klammer).',
+                type: 'mc',
+                options: [
+                    { label: '(1) Creative Commons', value: '1' },
+                    { label: '(2) Copyright', value: '2' },
+                    { label: '(3) Copy-Paste', value: '3' }
+                ],
+                answer: '2'
+            },
+            {
+                text: 'Welche Abkürzung steht für freie Lizenzen? <br>Gesucht ist der erste Buchstabe als Position im Alphabet.',
+                type: 'number',
+                answer: '3',
+            },
+            {
+                text: 'Wie viele dieser Handlungen sind erlaubt, ohne den Urheber zu fragen?<br> - Ein fremdes Bild auf Instagram als eigenes ausgeben. <br> - Ein Meme mit einem geschützten Filmausschnitt in sozialen Medien veröffentlichen. <br> - Ein aktuelles Lied einer bekannten Popmusikerin als Hintergrundmusik für ein öffentliches YouTube-Video nutzen.',
+                type: 'number',
+                answer: '0'
+            }
+        ]
+    },
+    {
+        title: '🎨 Mediengestaltung',
+        code: '1631',
+        questions: [
+            {
+                text: 'Wie nennt man die kleinsten Bildpunkte? <br>Gesucht ist der erste Buchstabe als Position im Alphabet.',
+                type: 'number',
+                answer: '16',
+            },
+            {
+                text: 'Wie viele Grundfarben werden beim RGB-Modell gemischt?',
+                type: 'number',
+                answer: '3'
+            },
+            {
+                text: 'Welches Dateiformat ist für Fotos verlustbehaftet, aber platzsparend?<br>Die Position der richtigen Lösung ist Teil des Codes (siehe Ziffer in Klammer).',
+                type: 'mc',
+                options: [
+                    { label: '(1) .jpg', value: '1' },
+                    { label: '(2) .pdf', value: '2' },
+                    { label: '(3) .wav', value: '3' }
+                ],
+                answer: '1'
+            }
+        ]
+    },
+    {
+        title: '📰 Fake News',
+        code: '242',
+        questions: [
+            {
+                text: 'Was versteht man unter dem Fachbegriff <b>Clickbait</b>? <br>Die Position der richtigen Lösung ist Teil des Codes (siehe Ziffer in Klammer).',
+                type: 'mc',
+                options: [
+                    { label: '(1) Eine Phishing-Mail', value: '1' },
+                    { label: '(2) Eine reißerische Überschrift, die zum Klicken verführen soll.', value: '2' },
+                    { label: '(3) Eine unseriöse Quelle', value: '3' }
+                ],
+                answer: '2'
+            },
+            {
+                text: 'Wie nennt man manipulierte Videos, in denen Inhalt täuschend echt durch KI-generierte Inhalte ersetzt wird? <br>Gesucht ist der erste Buchstabe als Position im Alphabet.',
+                type: 'number',
+                answer: '4',
+            },
+            {
+                text: 'Was ist das Hauptziel von Fake News? <br>Die Position der richtigen Lösung ist Teil des Codes (siehe Ziffer in Klammer).',
+                type: 'mc',
+                options: [
+                    { label: '(1) Sachliche Information der Bürger', value: '1' },
+                    { label: '(2) Beeinflussung der Meinung oder Geld verdienen durch Klicks', value: '2' },
+                    { label: '(3) Unterhaltung durch lustige Witze', value: '3' }
+                ],
+                answer: '2'
+            }
+        ]
+    }
+];
+
+let currentBlock = 0;
+let solvedBlocks = 0;
+
+function startGame() {
+    document.getElementById('introScreen').classList.add('hidden');
+    document.getElementById('gameScreen').classList.remove('hidden');
+    renderBlock();
+}
+
+function renderBlock() {
+    const block = blocks[currentBlock];
+    const container = document.getElementById('blockContainer');
+    document.getElementById('progressText').textContent = `${currentBlock + 1} / ${blocks.length}`;
+    document.getElementById('solvedCount').textContent = solvedBlocks;
+
+    let html = `
+        <div class="question-block">
+            <div class="block-title"><h2>${block.title}</h2></div>
+            <p>Beantworte alle drei Fragen. Aus den richtigen Antworten entsteht der Lösungscode für diesen Block.</p>
+    `;
+
+    block.questions.forEach((q, index) => {
+        html += `<div class="question"><p><strong>Frage ${index + 1}:</strong><br>${q.text}</p>`;
+        if (q.hint) {
+            html += `<p class="hint">Hinweis: ${q.hint}</p>`;
+        }
+
+        if (q.type === 'mc') {
+            html += `<div class="options">`;
+            q.options.forEach((opt) => {
+                html += `
+                    <label>
+                        <input type="radio" name="block${currentBlock}_q${index}" value="${opt.value}"> ${opt.label}
+                    </label>
+                `;
+            });
+            html += `</div>`;
+        } else {
+            html += `<input type="text" id="block${currentBlock}_q${index}" inputmode="numeric" placeholder="Antwort eingeben">`;
+        }
+        html += `</div>`;
+    });
+
+    html += `
+        <div class="code-area">
+            <p><strong>Zifferencode eingeben:</strong></p>
+            <p class="hint">Setze die richtigen Antworten direkt hintereinander. Manche Codes haben 3, andere 4 Ziffern.</p>
+            <input type="text" id="codeInput" class="code-input" placeholder="Code" maxlength="4" inputmode="numeric">
+            <br>
+            <button onclick="checkBlock()">Block prüfen</button>
+            <div id="feedback"></div>
+        </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+function getAnswer(questionIndex, question) {
+    if (question.type === 'mc') {
+        const selected = document.querySelector(`input[name="block${currentBlock}_q${questionIndex}"]:checked`);
+        return selected ? selected.value.trim() : '';
+    }
+    const input = document.getElementById(`block${currentBlock}_q${questionIndex}`);
+    return input ? input.value.trim() : '';
+}
+
+function checkBlock() {
+    const block = blocks[currentBlock];
+    const feedback = document.getElementById('feedback');
+    const userCode = document.getElementById('codeInput').value.trim();
+
+    let allQuestionsCorrect = true;
+    for (let i = 0; i < block.questions.length; i++) {
+        const userAnswer = getAnswer(i, block.questions[i]);
+        if (userAnswer !== block.questions[i].answer) {
+            allQuestionsCorrect = false;
+            break;
+        }
+    }
+
+    if (!allQuestionsCorrect) {
+        feedback.className = 'feedback error';
+        feedback.textContent = '❌ Mindestens eine Antwort ist noch nicht richtig. Überprüfe die drei Fragen.';
+        return;
+    }
+
+    if (userCode !== block.code) {
+        feedback.className = 'feedback error';
+        feedback.textContent = '❌ Die Antworten stimmen, aber der eingegebene Code ist noch falsch zusammengesetzt.';
+        return;
+    }
+
+    solvedBlocks++;
+    document.getElementById('solvedCount').textContent = solvedBlocks;
+
+    if (currentBlock < blocks.length - 1) {
+        feedback.className = 'feedback success';
+        feedback.innerHTML = '✅ Fragenblock gelöst. Der nächste Sicherheitsbereich wird freigeschaltet...';
+        currentBlock++;
+        setTimeout(renderBlock, 800);
+    } else {
+        document.getElementById('gameScreen').classList.add('hidden');
+        document.getElementById('successScreen').classList.remove('hidden');
+        document.getElementById('finalSummary').textContent = `${solvedBlocks}/${blocks.length} Blöcke gelöst`;
+    }
+}
+</script>
+</body>
+</html>
