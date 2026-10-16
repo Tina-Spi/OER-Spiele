@@ -1,0 +1,582 @@
+<! #Dieser Code wurde überarbeitet mit Gemini 3.8 Flash (Google, 2026)
+   # prompted by & manuell nachgebessert von Martina Spitaler
+   # Datum 15.10.2026
+   # Passwort: VERBOT>
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Das Fachbegriffsverbot mit Lehrpersonen-Bereich</title>
+    <style>
+        :root {
+            --petrol-dark: #004d56;
+            --petrol-main: #007a87;
+            --petrol-light: #e0f0f1;
+            --gray-dark: #343a40;
+            --gray-medium: #6c757d;
+            --gray-light: #e9ecef;
+            --bg-color: #f4f6f7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--gray-dark);
+            text-align: center;
+            margin: 0;
+            padding: clamp(8px, 3vw, 20px);
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-top: 8px solid var(--petrol-main);
+        }
+        h1 {
+            color: var(--petrol-dark);
+        }
+        
+        .page-footer {
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gray-light);
+            font-size: 0.72em;
+            color: var(--gray-medium);
+            text-align: center;
+        }
+        .page-footer a {
+            color: var(--petrol-main);
+            text-decoration: none;
+        }
+        .page-footer a:hover {
+            text-decoration: underline;
+        }
+
+        #setup-screen { display: block; }
+        .rules {
+            background-color: var(--petrol-light);
+            color: var(--petrol-dark);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: left;
+            border-left: 4px solid var(--petrol-main);
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: var(--gray-dark);
+        }
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: var(--gray-light);
+            font-family: inherit;
+        }
+        
+        #game-screen, #transition-screen { display: none; }
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            background: var(--petrol-dark);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: clamp(13px, 3.5vw, 18px);
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .timer {
+            font-size: clamp(18px, 5vw, 26px);
+            font-weight: bold;
+            color: var(--gray-dark);
+            margin-bottom: 20px;
+            background-color: var(--gray-light);
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+            min-width: 120px;
+        }
+        .card {
+            border: 3px solid var(--petrol-main);
+            border-radius: 12px;
+            padding: clamp(15px, 4vw, 25px);
+            margin-bottom: 20px;
+            background-color: white;
+        }
+        .main-word {
+            font-size: clamp(22px, 7vw, 34px);
+            font-weight: bold;
+            color: var(--petrol-dark);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            word-break: break-word;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--gray-light);
+            margin: 15px 0;
+        }
+        .taboo-words {
+            list-style-type: none;
+            padding: 0;
+            font-size: clamp(15px, 4.5vw, 22px);
+            color: var(--gray-medium);
+            font-weight: 500;
+        }
+        .taboo-words li {
+            margin-bottom: 6px;
+        }
+        
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            padding: clamp(12px, 3vw, 16px);
+            font-size: clamp(14px, 3.5vw, 16px);
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-start { background-color: var(--petrol-main); color: white; width: 100%; font-size: clamp(15px, 4vw, 18px); }
+        .btn-start:hover { background-color: var(--petrol-dark); }
+        
+        .btn-teacher { background-color: var(--gray-light); color: var(--petrol-dark); border: 2px dashed var(--petrol-main); width: 100%; margin-top: 15px; }
+        .btn-teacher:hover { background-color: var(--petrol-light); }
+        
+        .btn-reset { background-color: #6c757d; color: white; width: 100%; margin-top: 10px; }
+        .btn-reset:hover { background-color: #5a6268; }
+
+        .btn-correct { background-color: var(--petrol-main); color: white; }
+        .btn-correct:hover { background-color: var(--petrol-dark); }
+        
+        .btn-taboo { background-color: var(--gray-dark); color: white; }
+        .btn-taboo:hover { background-color: #23272b; }
+        
+        .btn-skip { background-color: var(--gray-light); color: var(--gray-dark); border: 1px solid #ccc; }
+        .btn-skip:hover { background-color: #d3d9df; }
+        
+        .active-team-indicator {
+            font-size: clamp(16px, 4.5vw, 22px);
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--petrol-main);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 550px;
+            text-align: left;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            border-top: 6px solid var(--petrol-main);
+        }
+        .format-box {
+            background-color: var(--petrol-light);
+            border-left: 4px solid var(--petrol-main);
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-bottom: 12px;
+            color: var(--petrol-dark);
+        }
+        .format-box code {
+            font-weight: bold;
+            color: var(--petrol-dark);
+        }
+        .close-btn {
+            background-color: var(--gray-light);
+            color: var(--gray-dark);
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .close-btn:hover {
+            background-color: #d3d9df;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="setup-screen">
+        <h1>Das Fachbegriffsverbot</h1>
+        
+        <div class="rules">
+            <strong>Spielregeln</strong><br>
+            In diesem Wettbewerb treten zwei Teams zu je zwei Personen gegeneinander an. Ziel ist es, unter Zeitdruck 
+			Fachbegriffe zu umschreiben und zu lösen, ohne die Liste der verbotenen Wörter zu nutzen.<br>
+			<b>Der Ablauf</b><br>
+			Innerhalb eines Teams sind die Rollen klar verteilt: Während eine Person die Begriffe erklärt, 
+			übernimmt die andere Person den ratenden Part. Jemand aus der gegnerischen Team fungiert dabei 
+			als Kontrolle, um auf die Einhaltung der Verbote zu achten.<br>
+			<b>Zeit und Punkte</b><br>
+			Die Runde läuft bis zum Ablauf der vorgegebenen Zeit. In diesem Zeitraum versucht das Duo, 
+			so viele Lösungen wie möglich zu finden. Danach ist das andere Team an der Reihe. 
+			Gewonnen hat das Team mit den meisten Punkten.<br><br>
+            • Erraten = <strong>+1 Punkt</strong><br>
+            • verbotenen Begriff verwendet = <strong>-1 Punkt</strong><br>
+            • Überspringen = <strong>0 Punkte</strong>
+        </div>
+
+        <div class="input-group">
+            <label for="team1">Name Team 1:</label>
+            <input type="text" id="team1" placeholder="z.B. Die Denker" value="Team 1">
+        </div>
+
+        <div class="input-group">
+            <label for="team2">Name Team 2:</label>
+            <input type="text" id="team2" placeholder="z.B. Die Macher" value="Team 2">
+        </div>
+
+        <div class="input-group">
+            <label for="time-select">Zeit pro Runde:</label>
+            <select id="time-select">
+                <option value="30">30 Sekunden</option>
+                <option value="45">45 Sekunden</option>
+                <option value="60" selected>60 Sekunden</option>
+            </select>
+        </div>
+
+        <button class="btn-start" onclick="startGame()">OK - Spiel starten!</button>
+        <button class="btn-teacher" onclick="openTeacherArea()">🔒 Lehrpersonen: Begriffe verwalten</button>
+    </div>
+
+    <div id="game-screen">
+        <div class="score-board">
+            <span id="score-team1-display">Team 1: 0</span>
+            <span id="score-team2-display">Team 2: 0</span>
+        </div>
+
+        <div class="active-team-indicator" id="active-team-display">
+            Team 1 ist an der Reihe!
+        </div>
+
+        <div class="timer" id="timer-display">Zeit: 60s</div>
+
+        <div class="card">
+            <div class="main-word" id="current-word">BEGRIFF</div>
+            <hr>
+            <ul class="taboo-words" id="taboo-list">
+            </ul>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-correct" onclick="handleCard(1)">✓ Begriff korrekt (+1 Punkt)</button>
+            <button class="btn-taboo" onclick="handleCard(-1)">✗ verbotenen Begriff verwendet (-1 Punkt)</button>
+            <button class="btn-skip" onclick="handleCard(0)">⏭ Begriff überspringen (0 Punkte)</button>
+        </div>
+    </div>
+
+    <div id="transition-screen">
+        <h1 style="color: var(--gray-dark);">Die Zeit ist abgelaufen!</h1>
+        <p style="font-size: 20px; color: var(--petrol-main); font-weight: bold; margin-bottom: 30px;" id="next-team-announcement">
+            Das andere Team ist nun an der Reihe.
+        </p>
+        <button class="btn-start" onclick="startTurn()">OK - Nächste Runde starten</button>
+    </div>
+
+    <footer class="page-footer">
+        <a href="https://tina-spi.github.io/OER-Spiele/Fachbegriffsverbot_Lehrpersonen-Bereich.html">Das Fachbegriffsverbot-Lehrpersonen-Bereich</a> ist eine Bearbeitung von "Das Fachbegriffsverbot" von Martina Spitaler und Claudia Petz, verwendet unter CC BY-NC-SA 4.0. Die neue, erweiterte Version von <a href="https://www.ph-noe.ac.at/de/personen/martina-spitaler"> Martina Spitaler </a> ist lizenziert unter <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;">
+    </footer>
+
+</div>
+
+<!-- Modal: Lehrpersonenbereich -->
+<div id="teacher-modal" class="modal">
+    <div class="modal-content">
+        <h2 style="color: var(--petrol-dark); margin-top: 0;">Lehrpersonenbereich: Begriffe verwalten</h2>
+        
+        <div class="format-box">
+            <strong>Hinweis:</strong> Beim Speichern werden alle bisherigen Karten durch die neuen Einträge <strong>vollständig ersetzt</strong>.<br><br>
+            <strong>Formatvorgabe:</strong><br>
+            Ein Eintrag pro Zeile: Begriff gefolgt von einem Doppelpunkt (<code>:</code>) und den verbotenen Begriffen getrennt durch Kommas (<code>,</code>).<br><br>
+            <strong>Syntax:</strong><br>
+            <code>Hauptbegriff: Verbot1, Verbot2, Verbot3, Verbot4</code><br><br>
+            <strong>Beispiel:</strong><br>
+            <code>Kaufvertrag: Ware, Preis, Einigung, Unterschrift</code><br>
+            <code>Skonto: Abzug, Frist, Rechnung, Prozent</code>
+        </div>
+
+        <div class="input-group">
+            <label for="custom-cards-input">Fachbegriffe:</label>
+            <textarea id="custom-cards-input" rows="8" placeholder="Hauptbegriff: Tabu 1, Tabu 2, Tabu 3, Tabu 4"></textarea>
+        </div>
+
+        <button class="btn-start" onclick="saveCustomCards()">Begriffe ersetzen & speichern</button>
+        <button class="btn-reset" onclick="resetToDefaultCards()">Standardbegriffe wiederherstellen</button>
+        <button class="close-btn" onclick="closeTeacherArea()">Schließen</button>
+    </div>
+</div>
+
+<script>
+    const DEFAULT_CARDS = [
+        { word: "Geschäftsfähigkeit", taboo: ["Alter", "mündig", "Vertrag", "unterschreiben"] },
+        { word: "Willensübereinstimmung", taboo: ["Übereinkunft", "einig", "beide", "derselben Meinung"] },
+        { word: "Angebot", taboo: ["Verkäufer", "Offert", "Ware", "vorschlagen"] },
+        { word: "Annahme", taboo: ["Käufer", "unterschreiben", "Bestätigung", "einverstanden"] },
+        { word: "Bindungsfrist", taboo: ["Zeit", "gültig", "Dauer", "Zeitraum"] },
+        { word: "Bewegliche Sachen", taboo: ["Transport", "tragen", "mobil", "Ware"] },
+        { word: "Unbewegliche Sachen", taboo: ["Haus", "Grundstück", "Immobilie", "fest"] },
+        { word: "Liefertermin", taboo: ["Datum", "Ankunft", "Frist", "Kalender"] },
+        { word: "Fixgeschäft", taboo: ["Hochzeitstorte", "genau", "Zeitpunkt", "Datum"] },
+        { word: "Erfüllungsort", taboo: ["bringen", "Übergabe", "Ort", "Ziel"] },
+        { word: "Gefahrenübergang", taboo: ["Risiko", "kaputt", "Transport", "Verlust"] },
+        { word: "Kaufpreis", taboo: ["Euro", "Rechnung", "bezahlen", "Geld"] },
+        { word: "Skonto", taboo: ["Abzug", "schnell", "Prozent", "Früher"] },
+        { word: "Rabatt", taboo: ["billiger", "Nachlass", "Aktion", "Gutschein"] },
+        { word: "Eigentumsvorbehalt", taboo: ["Raten", "gehören", "bezahlt", "Sicherheit"] },
+        { word: "Pönale", taboo: ["Strafe", "Verspätung", "Geld", "Pauschale"] },
+        { word: "Anzahlung", taboo: ["Teil", "vorab", "Rest", "Vorschuss"] },
+        { word: "Verzugszinsen", taboo: ["zu spät", "Bank", "Strafe", "Forderung"] },
+        { word: "Mahnung", taboo: ["Brief", "Erinnerung", "zahlen", "Frist setzen"] },
+        { word: "Gewährleistung", taboo: ["Reklamation", "Jahre", "Mangel", "Recht"] },
+        { word: "Garantie", taboo: ["freiwillig", "Kulanz", "Versprechen", "Reparatur"] },
+        { word: "Sachmangel", taboo: ["kaputt", "Defekt", "Fehler", "Beschädigt"] },
+        { word: "Beweislastumkehr", taboo: ["Käufer", "Verkäufer", "12 Monate", "Schuld"] },
+        { word: "Schadenersatz", taboo: ["Geld", "Reparatur", "kaputt", "Verschulden"] },
+        { word: "KSchG", taboo: ["Konsument", "Schutz", "Gesetz", "Verbraucher"] },
+        { word: "UGB", taboo: ["Unternehmen", "B2B", "Gesetz", "Vertrag"] },
+        { word: "VGG", taboo: ["Verbraucher", "Waren", "Gewährleistung", "Gesetz"] },
+        { word: "FAGG", taboo: ["Internet", "Online", "Fernabsatz", "Webshop"] },
+        { word: "Rücktrittsrecht", taboo: ["Frist", "Storno", "zurück", "Widerruf"] },
+        { word: "Auswärtsgeschäft", taboo: ["Haustür", "Außerhalb", "Vertreter", "Messe"] },
+        { word: "AGB", taboo: ["Kleingedrucktes", "Regeln", "Bedingungen", "Vertrag"] },
+        { word: "Schlüssige Handlung", taboo: ["nicken", "Zeichen", "Geste", "stumm"] },
+        { word: "Annahmeverzug", taboo: ["Käufer", "Weigern", "Abholen", "Lager"] },
+        { word: "Zahlungsverzug", taboo: ["Frist", "Überweisen", "Mahnung", "Schulden"] },
+        { word: "Produkthaftung", taboo: ["gefährlich", "Fehler", "Schaden", "Hersteller"] },
+        { word: "Umtausch", taboo: ["Kulanz", "Geschäft", "zurückgeben", "neu"] },
+        { word: "Gerichtsstand", taboo: ["Ort", "Klage", "Richter", "Anwalt"] },
+        { word: "Leistung", taboo: ["Arbeit", "Ware", "Pflicht", "Vertrag"] },
+        { word: "Gegenleistung", taboo: ["Geld", "Bezahlung", "Tausch", "Entgelt"] },
+        { word: "Lieferung", taboo: ["Paket", "Versand", "Transport", "Post"] },
+        { word: "Zahlung", taboo: ["Geld", "Überweisen", "Begleichen", "Bank"] },
+        { word: "Mahnspesen", taboo: ["Kosten", "Gebühr", "Brief", "Mahnung"] },
+        { word: "Termingeschäft", taboo: ["Fix", "Datum", "Zeit", "Frist"] },
+        { word: "Erlaubtheit", taboo: ["legal", "Gesetz", "verboten", "Möglich"] }
+    ];
+
+    let allCards = JSON.parse(JSON.stringify(DEFAULT_CARDS));
+
+    let team1Name = "";
+    let team2Name = "";
+    let scoreTeam1 = 0;
+    let scoreTeam2 = 0;
+    let currentTeam = 1;
+    let roundTime = 60;
+    let timeLeft = 0;
+    let timerInterval;
+    let availableCards = [];
+
+    function populateTextareaFromCards() {
+        const text = allCards.map(c => c.word + ": " + c.taboo.join(", ")).join("\n");
+        document.getElementById("custom-cards-input").value = text;
+    }
+
+    function openTeacherArea() {
+        const pw = prompt("Bitte Passwort eingeben:");
+        if (pw === "VERBOT") {
+            populateTextareaFromCards();
+            document.getElementById("teacher-modal").style.display = "block";
+        } else if (pw !== null) {
+            alert("Falsches Passwort!");
+        }
+    }
+
+    function closeTeacherArea() {
+        document.getElementById("teacher-modal").style.display = "none";
+    }
+
+    function saveCustomCards() {
+        const text = document.getElementById("custom-cards-input").value.trim();
+        if (!text) {
+            alert("Das Eingabefeld darf nicht leer sein.");
+            return;
+        }
+
+        const lines = text.split("\n");
+        const newCards = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const parts = line.split(":");
+            if (parts.length < 2) {
+                alert("Formatfehler in Zeile " + (i + 1) + ". Trennung zwischen Hauptbegriff und Verboten durch ':' erforderlich.");
+                return;
+            }
+
+            const word = parts[0].trim();
+            const taboo = parts[1].split(",").map(t => t.trim()).filter(t => t.length > 0);
+
+            if (!word || taboo.length === 0) {
+                alert("Formatfehler in Zeile " + (i + 1) + ". Ein Begriff und mindestens ein Verbot werden benötigt.");
+                return;
+            }
+
+            newCards.push({ word: word, taboo: taboo });
+        }
+
+        if (newCards.length === 0) {
+            alert("Es wurden keine gültigen Begriffe gefunden.");
+            return;
+        }
+
+        allCards = newCards;
+        alert("Begriffe erfolgreich ersetzt! Aktuell geladene Begriffe: " + allCards.length);
+        closeTeacherArea();
+    }
+
+    function resetToDefaultCards() {
+        if (confirm("Möchten Sie wirklich die ursprünglichen Standardbegriffe wiederherstellen? Alle eigenen Änderungen werden dabei verworfen.")) {
+            allCards = JSON.parse(JSON.stringify(DEFAULT_CARDS));
+            populateTextareaFromCards();
+            alert("Standardbegriffe (" + allCards.length + " Karten) erfolgreich wiederhergestellt.");
+        }
+    }
+
+    function shuffleArray(array) {
+        let shuffled = array.slice();
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    function startGame() {
+        team1Name = document.getElementById("team1").value || "Team 1";
+        team2Name = document.getElementById("team2").value || "Team 2";
+        roundTime = parseInt(document.getElementById("time-select").value);
+
+        document.getElementById("setup-screen").style.display = "none";
+        
+        document.getElementById("next-team-announcement").innerText = team1Name + " beginnt!";
+        document.getElementById("transition-screen").style.display = "block";
+        
+        availableCards = shuffleArray(allCards);
+        updateScoreBoard();
+    }
+
+    function startTurn() {
+        document.getElementById("transition-screen").style.display = "none";
+        document.getElementById("game-screen").style.display = "block";
+
+        let activeName = currentTeam === 1 ? team1Name : team2Name;
+        document.getElementById("active-team-display").innerText = activeName + " ist an der Reihe!";
+
+        timeLeft = roundTime;
+        document.getElementById("timer-display").innerText = "Zeit: " + timeLeft + "s";
+        
+        loadNextCard();
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(function() {
+            timeLeft--;
+            document.getElementById("timer-display").innerText = "Zeit: " + timeLeft + "s";
+            
+            if(timeLeft <= 10) {
+                document.getElementById("timer-display").style.color = "#dc3545"; 
+            } else {
+                document.getElementById("timer-display").style.color = "var(--gray-dark)";
+            }
+            
+            if (timeLeft <= 0) {
+                endTurn();
+            }
+        }, 1000);
+    }
+
+    function loadNextCard() {
+        if (availableCards.length === 0) {
+            alert("Alle Karten wurden gespielt! Die Begriffe werden neu gemischt.");
+            availableCards = shuffleArray(allCards);
+        }
+
+        const card = availableCards.pop();
+        document.getElementById("current-word").innerText = card.word;
+        
+        const tabooList = document.getElementById("taboo-list");
+        tabooList.innerHTML = ""; 
+        card.taboo.forEach(word => {
+            let li = document.createElement("li");
+            li.innerText = "• " + word;
+            tabooList.appendChild(li);
+        });
+    }
+
+    function handleCard(points) {
+        if (currentTeam === 1) {
+            scoreTeam1 += points;
+        } else {
+            scoreTeam2 += points;
+        }
+        
+        updateScoreBoard();
+        loadNextCard();
+    }
+
+    function updateScoreBoard() {
+        document.getElementById("score-team1-display").innerText = team1Name + ": " + scoreTeam1;
+        document.getElementById("score-team2-display").innerText = team2Name + ": " + scoreTeam2;
+    }
+
+    function endTurn() {
+        clearInterval(timerInterval);
+        
+        currentTeam = currentTeam === 1 ? 2 : 1;
+        let nextName = currentTeam === 1 ? team1Name : team2Name;
+        
+        document.getElementById("game-screen").style.display = "none";
+        document.getElementById("next-team-announcement").innerText = nextName + " ist nun an der Reihe.";
+        document.getElementById("transition-screen").style.display = "block";
+        document.getElementById("timer-display").style.color = "var(--gray-dark)";
+    }
+</script>
+
+</body>
+</html>
