@@ -75,7 +75,6 @@
       animation: fadeUp .5s ease both;
     }
 
-    /* ── Centered header ── */
     .card-header {
       text-align: center;
       margin-bottom: clamp(24px, 4vw, 36px);
@@ -111,14 +110,12 @@
       font-size: clamp(.9rem, 2.5vw, 1rem);
     }
 
-    /* ── Divider ── */
     .divider {
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--border), transparent);
       margin-bottom: clamp(24px, 4vw, 36px);
     }
 
-    /* ── Button list ── */
     .btn-list {
       display: flex;
       flex-direction: column;
@@ -169,7 +166,44 @@
       outline-offset: 3px;
     }
 
-    /* ── Download row ── */
+    /* ── Einheitliches Banner & bündige Positionierung ── */
+    .btn-label-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .badge-neu {
+      display: inline-flex;
+      align-items: center;
+      margin-left: auto;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1952e8;
+      background: rgba(25, 82, 232, 0.1);
+      border: 1px solid rgba(25, 82, 232, 0.25);
+      border-radius: 999px;
+      padding: 3px 8px;
+      line-height: 1;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn.btn-new {
+      background: #fafbff;
+      border-color: rgba(25, 82, 232, 0.3);
+    }
+
+    .btn.btn-new:hover {
+      background: var(--accent-bg);
+      border-color: rgba(74,125,255,.45);
+    }
+
     .btn-wrap {
       display: flex;
       flex-direction: column;
@@ -204,9 +238,19 @@
       border-color: rgba(61,66,96,.28);
     }
 
+    .dl-link.dl-link-new {
+      color: #1952e8;
+      background: rgba(25, 82, 232, 0.08);
+      border-color: rgba(25, 82, 232, 0.25);
+    }
+
+    .dl-link.dl-link-new:hover {
+      background: rgba(25, 82, 232, 0.16);
+      border-color: rgba(25, 82, 232, 0.4);
+    }
+
     .dl-icon { font-size: .78rem; }
 
-    /* ── Meta block ── */
     .meta {
       margin-top: clamp(24px, 4vw, 36px);
       padding-top: clamp(18px, 3vw, 26px);
@@ -252,7 +296,6 @@
 
     .meta-line a:hover { text-decoration: underline; }
 
-    /* ── Fade-in ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -272,7 +315,78 @@
     <div class="divider"></div>
 
     <nav class="btn-list">
-
+      <div class="btn-wrap">
+        <a href="Begriffekiste-interaktiv.html" class="btn btn-new">
+          <div class="btn-label-group">
+            <span>Begriffekiste interaktiv</span>
+            <span class="badge-neu">NEU</span>
+          </div>
+          <span class="btn-arrow">→</span>
+        </a>
+        <div class="dl-row">
+          <a href="Begriffekiste-interaktiv.html" class="dl-link dl-link-new" download>
+            <span class="dl-icon">⬇</span> HTML herunterladen
+          </a>
+          <a href="Begriffekiste-interaktiv_Dokumentation.pdf" class="dl-link dl-link-new" download>
+            <span class="dl-icon">⬇</span> Dokumentation herunterladen
+          </a>
+        </div>
+      </div>
+	  
+      <div class="btn-wrap">
+        <a href="Fachbegriffsverbot-Lehrpersonen.html" class="btn btn-new">
+          <div class="btn-label-group">
+            <span>Fachbegriffsverbot mit Lehrpersonen-Bereich</span>
+            <span class="badge-neu">NEU</span>
+          </div>
+          <span class="btn-arrow">→</span>
+        </a>
+        <div class="dl-row">
+          <a href="Fachbegriffsverbot-Lehrpersonen.html" class="dl-link dl-link-new" download>
+            <span class="dl-icon">⬇</span> HTML herunterladen
+          </a>
+          <a href="Fachbegriffsverbot-Lehrpersonen_Dokumentation.pdf" class="dl-link dl-link-new" download>
+            <span class="dl-icon">⬇</span> Dokumentation herunterladen
+          </a>
+        </div>
+      </div>
+	  
+      <div class="btn-wrap">
+        <a href="Klassenzimmerquiz.html" class="btn btn-new">
+          <div class="btn-label-group">
+            <span>Das Klassenzimmerquiz</span>
+            <span class="badge-neu">NEU</span>
+          </div>
+          <span class="btn-arrow">→</span>
+        </a>
+        <div class="dl-row">
+          <a href="Klassenzimmerquiz.html" class="dl-link dl-link-new" download>
+            <span class="dl-icon">⬇</span> HTML herunterladen
+          </a>
+          <a href="Klassenzimmerquiz_Dokumentation.pdf" class="dl-link dl-link-new" download>
+            <span class="dl-icon">⬇</span> Dokumentation herunterladen
+          </a>
+        </div>
+      </div>
+	  
+      <div class="btn-wrap">
+        <a href="Wissenswand_Lehrpersonen-Bereich.html" class="btn btn-new">
+          <div class="btn-label-group">
+            <span>Wissenswand Lehrpersonen-Bereich</span>
+            <span class="badge-neu">NEU</span>
+          </div>
+          <span class="btn-arrow">→</span>
+        </a>
+        <div class="dl-row">
+          <a href="Wissenswand_Lehrpersonen-Bereich.html" class="dl-link dl-link-new" download>
+            <span class="dl-icon">⬇</span> HTML herunterladen
+          </a>
+          <a href="Wissenswand_Lehrpersonen-Bereich.pdf" class="dl-link dl-link-new" download>
+            <span class="dl-icon">⬇</span> Dokumentation herunterladen
+          </a>
+        </div>
+      </div>
+	  
       <div class="btn-wrap">
         <a href="Fachbegriffsverbot.html" class="btn">
           <span>Fachbegriffsverbot</span>
@@ -363,7 +477,7 @@
         </div>
       </div>
 
-	<div class="divider" style="margin-top: clamp(12px, 2vw, 24px);"></div>
+      <div class="divider" style="margin-top: clamp(12px, 2vw, 24px);"></div>
 
       <div class="btn-wrap">
         <p style="text-align: center; font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 800; color: var(--muted); margin-bottom: 8px; letter-spacing: 0.1em;">Interaktive HTML-Dateien erstellen und in einem GitHub-Repository veröffentlichen</p>
@@ -376,14 +490,11 @@
     </nav>
 
     <div class="meta">
-
       <div class="meta-line">
         <span class="meta-icon">✍️</span>
         <span>
           <span class="meta-label">Erstellt von</span>
           <a href="https://www.ph-noe.ac.at/de/personen/martina-spitaler" target="_blank" rel="noopener">Martina Spitaler</a>
-          &nbsp;&amp;&nbsp;
-          <a href="https://www.ph-noe.ac.at/de/personen/claudia-petz" target="_blank" rel="noopener">Claudia Petz</a>
         </span>
       </div>
 
@@ -403,8 +514,8 @@
           <a href="https://pub.ph-noe.ac.at/" target="_blank" rel="noopener">pub.ph-noe.ac.at</a>
         </span>
       </div>
-
     </div>
+
   </div>
 
 </body>
