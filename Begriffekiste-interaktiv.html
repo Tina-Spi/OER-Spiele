@@ -1,0 +1,730 @@
+<!-- Dieser Code wurde generiert mit Gemini 3.8 Flash (Google, 2026)
+   prompted by & manuell nachgebessert von Martina Spitaler
+   Datum 15.10.2026
+   Passwort: BEGRIFFE -->
+
+
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Die interaktive Begriffekiste</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <!-- Confetti library for classroom rewards -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Ambient lighting gradient for clean classroom setting */
+    .classroom-bg {
+      background: radial-gradient(circle at 50% 15%, #ffffff 0%, #edf5ff 45%, #e1effe 100%);
+    }
+
+    /* Smooth term fly-up animation: Rises upwards without moving the box */
+    .term-fly-up {
+      animation: riseOutOfBox 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.15) forwards;
+    }
+
+    @keyframes riseOutOfBox {
+      0% {
+        opacity: 0;
+        transform: translateY(110px) scale(0.6);
+        filter: blur(6px);
+      }
+      65% {
+        opacity: 1;
+        transform: translateY(-8px) scale(1.03);
+        filter: blur(0);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
+    }
+
+    /* Gentle floating pulse for active term */
+    .term-idle-hover {
+      animation: softWordFloat 3.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes softWordFloat {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-4px); }
+    }
+
+    /* Cardboard cast shadow on ground */
+    .box-cast-shadow {
+      background: radial-gradient(ellipse 68% 30% at 50% 50%, rgba(30, 58, 95, 0.28) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 75%);
+    }
+
+    /* Custom subtle scrollbars for modal */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="h-full classroom-bg text-slate-800 flex flex-col justify-between overflow-x-hidden selection:bg-blue-200 selection:text-blue-900">
+
+  <!-- Subtle Classroom Header -->
+  <header class="relative z-20 w-full max-w-6xl mx-auto px-4 sm:px-8 py-3.5 sm:py-4.5 flex items-center justify-between border-b border-blue-100 bg-white/70 backdrop-blur-md shadow-sm">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-blue-500 text-white flex items-center justify-center shadow-md shadow-blue-500/25 border border-blue-400">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-display font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+          Die interaktive Begriffekiste
+        </h1>
+      </div>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="flex items-center space-x-2">
+      <!-- Sound Toggle -->
+      <button id="soundToggleBtn" title="Sound umschalten" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white hover:bg-blue-50 text-slate-700 border border-slate-200 shadow-sm transition active:scale-95 flex items-center gap-1.5 text-xs font-semibold">
+        <span id="soundIcon">🔊</span>
+        <span class="hidden md:inline" id="soundLabel">Ton an</span>
+      </button>
+
+      <!-- History Modal Trigger -->
+      <button id="historyBtn" title="Bisher gezogene Begriffe" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white hover:bg-blue-50 text-slate-700 border border-slate-200 shadow-sm transition active:scale-95 flex items-center gap-1.5 text-xs font-semibold">
+        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="hidden md:inline">Verlauf</span>
+      </button>
+
+      <!-- Fullscreen Toggle for Smartboard / Projector -->
+      <button id="fullscreenBtn" title="Vollbild" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white hover:bg-blue-50 text-slate-700 border border-slate-200 shadow-sm transition active:scale-95 flex items-center gap-1.5 text-xs font-semibold">
+        <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+        </svg>
+        <span class="hidden lg:inline">Vollbild</span>
+      </button>
+
+      <!-- Teacher Settings (Password Protected) -->
+      <button id="openAdminModalBtn" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm shadow-md shadow-blue-500/25 transition active:scale-95 flex items-center space-x-1.5 border border-blue-500">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        <span>Lehrperson</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="relative z-10 flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 flex flex-col items-center justify-between py-3 sm:py-5">
+
+    <!-- Top Status Bar: Counters -->
+    <div class="flex items-center space-x-3 bg-white/90 border border-blue-200 px-4 py-2 rounded-full shadow-sm text-xs sm:text-sm">
+      <span class="flex h-2.5 w-2.5 relative">
+        <span id="boxPulseIndicator" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
+      </span>
+      <span class="text-slate-600 font-medium">In der Kiste:</span>
+      <span id="remainingWordsCount" class="font-extrabold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-lg shadow-inner">0</span>
+      <span class="text-slate-300">|</span>
+      <span class="text-slate-500">Bereits gezogen: <b id="drawnWordsCount" class="text-slate-800">0</b></span>
+    </div>
+
+    <!-- UPPER STAGE: Academic Term Card (Positioned safely above the box) -->
+    <div class="w-full max-w-3xl min-h-[145px] sm:min-h-[165px] flex items-center justify-center my-2 sm:my-3 px-2">
+      
+      <!-- Drawn Term Display Card -->
+      <div id="wordDisplayCard" class="hidden w-full max-w-2xl bg-white border-2 border-blue-400/80 rounded-3xl p-5 sm:p-7 text-center shadow-xl shadow-blue-500/10 relative overflow-hidden">
+        <!-- Soft top decorative highlight -->
+        <div class="absolute -top-12 -left-12 w-36 h-36 bg-blue-100 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-12 -right-12 w-36 h-36 bg-sky-100 rounded-full blur-2xl"></div>
+
+        <div class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold uppercase tracking-wider px-3.5 py-1 rounded-full mb-1">
+          <span>🎯</span>
+          <span>Gezogener Fachbegriff #<span id="activeWordNumber">1</span></span>
+        </div>
+        
+        <div id="activeWordText" class="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-slate-900 tracking-tight leading-tight my-2 break-words select-text">
+          –
+        </div>
+      </div>
+
+      <!-- Placeholder before first draw -->
+      <div id="wordPlaceholderNotice" class="text-center py-7 px-6 border-2 border-dashed border-blue-200 bg-white/60 rounded-3xl max-w-md w-full shadow-sm">
+        <span class="text-slate-600 font-medium text-sm sm:text-base">Klicke auf die Kiste, um einen Begriff herausfliegen zu lassen.</span>
+      </div>
+    </div>
+
+    <!-- LOWER STAGE: Genuine Photorealistic Cardboard Box -->
+    <div class="relative w-full max-w-lg flex flex-col items-center justify-center select-none my-1">
+      
+      <!-- Static Box Trigger -->
+      <div id="interactiveBox" class="relative group cursor-pointer select-none touch-manipulation transition-opacity hover:opacity-95" role="button" aria-label="Auf die Kiste klicken, um einen Begriff zu ziehen">
+        
+        <!-- Floor contact soft shadow -->
+        <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 w-80 sm:w-96 h-10 box-cast-shadow pointer-events-none"></div>
+
+        <!-- High-Resolution Photorealistic Cardboard Box -->
+        <img 
+          id="boxImage"
+          src="https://pngimg.com/uploads/box/box_PNG20.png" 
+          alt="Fotorealistische geöffnete Kartonkiste" 
+          class="w-72 h-60 sm:w-88 sm:h-72 object-contain relative z-10 pointer-events-auto filter drop-shadow-[0_15px_25px_rgba(30,58,95,0.22)]"
+          loading="eager"
+          onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Opened_box.png/640px-Opened_box.png';"
+        />
+      </div>
+
+    </div>
+
+    <!-- Action Control Buttons -->
+    <div class="mt-4 flex flex-wrap items-center justify-center gap-3 z-10">
+      <button id="drawWordBtn" class="px-7 py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-display font-bold text-base sm:text-lg rounded-2xl shadow-lg shadow-blue-500/25 transform active:scale-95 transition flex items-center space-x-2 border border-blue-500">
+        <svg class="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        <span>Begriff ziehen</span>
+      </button>
+
+      <button id="resetBoxBtn" class="px-5 py-3.5 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-semibold text-sm rounded-2xl border border-slate-300 shadow-sm transition active:scale-95 flex items-center space-x-2">
+        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span>Kiste neu füllen</span>
+      </button>
+    </div>
+
+    <!-- Empty Box Notification -->
+    <div id="emptyNotice" class="hidden mt-3 text-center p-3.5 px-6 bg-amber-50 text-amber-900 rounded-2xl font-medium text-xs sm:text-sm border border-amber-200 shadow-sm">
+      🎉 Alle Begriffe aus der Kiste wurden bereits gezogen! Klicke auf <b>"Kiste neu füllen"</b> oder bearbeite die Liste über die Lehrperson-Taste.
+    </div>
+
+  </main>
+
+  <!-- Footer Tip & License -->
+  <footer class="w-full text-center py-3 px-4 text-xs text-slate-500 border-t border-blue-100 bg-white/60 space-y-1">
+    <div>
+      Tipp: Du kannst auch jederzeit die <kbd class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] border border-slate-300 shadow-sm">Leertaste</kbd> drücken, um den nächsten Begriff zu ziehen.
+    </div>
+    <div class="text-[11px] text-slate-400">
+      <a href="https://tina-spi.github.io/OER-Spiele/Begriffekiste-interaktiv.html">Die interaktive Begriffekiste</a> © 2026 by <a href="https://www.ph-noe.ac.at/de/personen/martina-spitaler"> Martina Spitaler </a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;">
+
+    </div>
+  </footer>
+
+  <!-- MODAL: Password Prompt (BEGRIFFE) -->
+  <div id="passwordModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-slate-800 transform transition-all">
+      <div class="w-12 h-12 bg-blue-100 border border-blue-200 rounded-2xl flex items-center justify-center text-blue-600 mx-auto mb-3 shadow-inner">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-display font-bold text-center text-slate-900 mb-1">Lehrkraft-Bereich</h3>
+      <p class="text-xs text-center text-slate-500 mb-5">Bitte Passwort eingeben, um fortzufahren.</p>
+
+      <form id="passwordForm" onsubmit="return false;" class="space-y-4">
+        <div>
+          <label for="passwordInput" class="block text-xs font-semibold text-slate-700 mb-1.5">Passwort</label>
+          <input type="password" id="passwordInput" placeholder="Passwort eingeben..." autocomplete="off" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-sm">
+          <p id="passwordError" class="text-rose-600 text-xs font-semibold mt-1.5 hidden">Passwort ist nicht korrekt. Bitte erneut versuchen.</p>
+        </div>
+
+        <div class="flex space-x-2 pt-2">
+          <button type="button" id="closePasswordModalBtn" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs sm:text-sm rounded-xl transition">
+            Abbrechen
+          </button>
+          <button type="submit" id="submitPasswordBtn" class="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-500/25 transition">
+            Entsperren
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Teacher Word Editor -->
+  <div id="adminModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl text-slate-800 max-h-[92vh] flex flex-col">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 border border-blue-200 text-blue-600 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg sm:text-xl font-display font-bold text-slate-900">Fachbegriffe bearbeiten</h2>
+            <p class="text-xs text-slate-500">Begriffe eingeben, getrennt durch Semikolon (<code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-mono font-bold">;</code>)</p>
+          </div>
+        </div>
+        <button id="closeAdminModalBtn" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quick Reset Action -->
+      <div class="py-3 flex items-center justify-between border-b border-slate-100">
+        <span class="text-xs font-semibold text-slate-600">Thema: Kaufvertrag</span>
+        <button type="button" id="resetToDefaultBtn" class="text-xs px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 border border-slate-200 transition">
+          Standardliste wiederherstellen
+        </button>
+      </div>
+
+      <!-- Textarea Input Area -->
+      <div class="flex-1 overflow-y-auto py-3 space-y-3">
+        <div>
+          <label for="wordsInputTextarea" class="block text-xs font-semibold text-slate-700 mb-1.5">
+            Begriffsliste (mit Semikolon getrennt):
+          </label>
+          <textarea id="wordsInputTextarea" rows="6" class="w-full p-3.5 text-sm rounded-2xl bg-slate-50 border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-mono leading-relaxed shadow-inner" placeholder="Käufer; Verkäufer; ..."></textarea>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-500">
+          <span>Erkannte Einzelbegriffe: <b id="parsedCount" class="text-blue-600 font-bold">0</b></span>
+          <button id="clearAllWordsBtn" class="text-rose-600 hover:underline font-semibold">Feld leeren</button>
+        </div>
+
+        <!-- Live Preview Chips -->
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 max-h-36 overflow-y-auto">
+          <div class="text-[11px] font-semibold text-slate-500 mb-2">Vorschau:</div>
+          <div id="termsPreviewTags" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <!-- Feedback Notification -->
+        <div id="saveFeedback" class="hidden p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold rounded-xl text-center">
+          ✅ Begriffe gespeichert und Kiste neu befüllt!
+        </div>
+      </div>
+
+      <!-- Action Buttons Footer -->
+      <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+        <button id="discardChangesBtn" class="px-4 py-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-medium text-xs sm:text-sm rounded-xl transition">
+          Schließen
+        </button>
+        <button id="saveWordsBtn" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-500/25 transition flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>Speichern & Übernehmen</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: History of drawn terms -->
+  <div id="historyModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl text-slate-800 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="text-base font-display font-bold text-slate-900 flex items-center gap-2">
+          <span class="text-blue-600">📋</span> Gezogene Begriffe
+        </h3>
+        <button id="closeHistoryModalBtn" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto py-3">
+        <ul id="historyListContainer" class="space-y-2 text-sm"></ul>
+        <div id="emptyHistoryNotice" class="text-center py-8 text-slate-400 text-xs sm:text-sm">
+          Noch keine Begriffe in dieser Runde gezogen.
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-end">
+        <button id="closeHistoryBottomBtn" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl">
+          Schließen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State Constants
+    const STORAGE_KEY = 'begriffekiste_kaufvertrag_v1';
+    const REQUIRED_PASSWORD = 'BEGRIFFE';
+
+    // Fest definierte Liste für den Unterricht
+    const DEFAULT_TERMS = "Käufer; Verkäufer; Kaufpreis; Angebot; Annahme; Willenserklärung; Vertragsabschluss; Geschäftsfähigkeit; Eigentumsübertragung; Übergabe; Zahlung; Lieferung; Mangel; Gewährleistung; Garantie; Rücktritt; Verzug; Schadensersatz";
+
+    // State Variables
+    let allWords = [];
+    let remainingWords = [];
+    let drawnWords = [];
+    let isDrawing = false;
+    let soundEnabled = true;
+
+    // Web Audio Synthesizer (Classroom friendly chime)
+    let audioCtx = null;
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playDrawSound() {
+      if (!soundEnabled) return;
+      initAudioContext();
+      if (!audioCtx) return;
+
+      try {
+        const now = audioCtx.currentTime;
+
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        osc1.type = 'sine';
+        osc2.type = 'triangle';
+
+        // Upward energetic educational chime
+        osc1.frequency.setValueAtTime(260, now);
+        osc1.frequency.exponentialRampToValueAtTime(740, now + 0.24);
+
+        osc2.frequency.setValueAtTime(520, now);
+        osc2.frequency.exponentialRampToValueAtTime(1180, now + 0.28);
+
+        gainNode.gain.setValueAtTime(0.01, now);
+        gainNode.gain.linearRampToValueAtTime(0.24, now + 0.04);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.45);
+        osc2.stop(now + 0.45);
+      } catch (err) {
+        console.warn('Audio error:', err);
+      }
+    }
+
+    function parseWordsFromString(str) {
+      if (!str) return [];
+      const list = str.split(';')
+        .map(w => w.trim())
+        .filter(w => w.length > 0);
+      
+      allWords = [...new Set(list)];
+      return allWords;
+    }
+
+    function loadInitialWords() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored && stored.trim().length > 0) {
+        parseWordsFromString(stored);
+      } else {
+        parseWordsFromString(DEFAULT_TERMS);
+      }
+      resetGameCycle();
+    }
+
+    function resetGameCycle() {
+      remainingWords = [...allWords].sort(() => Math.random() - 0.5);
+      drawnWords = [];
+      updateCounterDisplay();
+      
+      // Reset card stage
+      document.getElementById('wordDisplayCard').classList.add('hidden');
+      document.getElementById('wordDisplayCard').classList.remove('term-idle-hover');
+      document.getElementById('wordPlaceholderNotice').classList.remove('hidden');
+      document.getElementById('emptyNotice').classList.add('hidden');
+
+      updateHistoryModal();
+    }
+
+    function updateCounterDisplay() {
+      document.getElementById('remainingWordsCount').innerText = remainingWords.length;
+      document.getElementById('drawnWordsCount').innerText = drawnWords.length;
+
+      const pulse = document.getElementById('boxPulseIndicator');
+      if (remainingWords.length > 0) {
+        pulse.classList.remove('hidden');
+      } else {
+        pulse.classList.add('hidden');
+      }
+    }
+
+    // Core Drawing Trigger
+    function drawNextWord() {
+      if (isDrawing) return;
+
+      if (remainingWords.length === 0) {
+        document.getElementById('emptyNotice').classList.remove('hidden');
+        return;
+      }
+
+      isDrawing = true;
+      const cardElem = document.getElementById('wordDisplayCard');
+      const placeholder = document.getElementById('wordPlaceholderNotice');
+
+      const chosenWord = remainingWords.pop();
+      drawnWords.push(chosenWord);
+      updateCounterDisplay();
+      updateHistoryModal();
+
+      playDrawSound();
+
+      // Card appears above the box with fly-up emergence
+      placeholder.classList.add('hidden');
+      document.getElementById('activeWordText').innerText = chosenWord;
+      document.getElementById('activeWordNumber').innerText = drawnWords.length;
+
+      cardElem.classList.remove('hidden', 'term-fly-up', 'term-idle-hover');
+      void cardElem.offsetWidth; // Force CSS reflow
+      cardElem.classList.add('term-fly-up');
+
+      // Light-blue & silver confetti burst
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 38,
+          spread: 65,
+          origin: { y: 0.45 },
+          colors: ['#0284c7', '#38bdf8', '#60a5fa', '#93c5fd', '#e2e8f0']
+        });
+      }
+
+      setTimeout(() => {
+        cardElem.classList.remove('term-fly-up');
+        cardElem.classList.add('term-idle-hover');
+        isDrawing = false;
+      }, 750);
+    }
+
+    function updateHistoryModal() {
+      const listContainer = document.getElementById('historyListContainer');
+      const emptyMsg = document.getElementById('emptyHistoryNotice');
+      listContainer.innerHTML = '';
+
+      if (drawnWords.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+
+      emptyMsg.classList.add('hidden');
+      [...drawnWords].reverse().forEach((word, index) => {
+        const itemNumber = drawnWords.length - index;
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl';
+        li.innerHTML = `
+          <div class="flex items-center space-x-2.5">
+            <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold flex items-center justify-center">${itemNumber}</span>
+            <span class="font-semibold text-slate-800">${escapeHtml(word)}</span>
+          </div>
+          <span class="text-[11px] text-slate-400 font-medium">gezogen</span>
+        `;
+        listContainer.appendChild(li);
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadInitialWords();
+
+      // Static Box Click & Button Click
+      document.getElementById('interactiveBox').addEventListener('click', drawNextWord);
+      document.getElementById('drawWordBtn').addEventListener('click', drawNextWord);
+
+      // Reset
+      document.getElementById('resetBoxBtn').addEventListener('click', () => {
+        resetGameCycle();
+      });
+
+      // Sound Toggle
+      const soundBtn = document.getElementById('soundToggleBtn');
+      const soundIcon = document.getElementById('soundIcon');
+      const soundLabel = document.getElementById('soundLabel');
+      soundBtn.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        if (soundEnabled) {
+          soundIcon.innerText = '🔊';
+          soundLabel.innerText = 'Ton an';
+          initAudioContext();
+        } else {
+          soundIcon.innerText = '🔇';
+          soundLabel.innerText = 'Ton aus';
+        }
+      });
+
+      // Fullscreen Toggle
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          }
+        }
+      });
+
+      // History Modal
+      const historyModal = document.getElementById('historyModal');
+      document.getElementById('historyBtn').addEventListener('click', () => {
+        historyModal.classList.remove('hidden');
+      });
+      document.getElementById('closeHistoryModalBtn').addEventListener('click', () => {
+        historyModal.classList.add('hidden');
+      });
+      document.getElementById('closeHistoryBottomBtn').addEventListener('click', () => {
+        historyModal.classList.add('hidden');
+      });
+
+      // Teacher Password Flow
+      const openAdminModalBtn = document.getElementById('openAdminModalBtn');
+      const passwordModal = document.getElementById('passwordModal');
+      const closePasswordModalBtn = document.getElementById('closePasswordModalBtn');
+      const passwordForm = document.getElementById('passwordForm');
+      const passwordInput = document.getElementById('passwordInput');
+      const passwordError = document.getElementById('passwordError');
+      const adminModal = document.getElementById('adminModal');
+
+      openAdminModalBtn.addEventListener('click', () => {
+        passwordInput.value = '';
+        passwordError.classList.add('hidden');
+        passwordModal.classList.remove('hidden');
+        setTimeout(() => passwordInput.focus(), 100);
+      });
+
+      closePasswordModalBtn.addEventListener('click', () => {
+        passwordModal.classList.add('hidden');
+      });
+
+      passwordForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const entered = passwordInput.value.trim();
+        if (entered.toUpperCase() === REQUIRED_PASSWORD) {
+          passwordModal.classList.add('hidden');
+          openEditorModal();
+        } else {
+          passwordError.classList.remove('hidden');
+          passwordInput.classList.add('border-rose-400');
+        }
+      });
+
+      // Teacher Word Editor
+      const textarea = document.getElementById('wordsInputTextarea');
+      const parsedCount = document.getElementById('parsedCount');
+      const tagsContainer = document.getElementById('termsPreviewTags');
+      const saveFeedback = document.getElementById('saveFeedback');
+
+      function openEditorModal() {
+        textarea.value = allWords.join('; ');
+        updateEditorPreview();
+        saveFeedback.classList.add('hidden');
+        adminModal.classList.remove('hidden');
+      }
+
+      function updateEditorPreview() {
+        const words = textarea.value.split(';').map(w => w.trim()).filter(w => w.length > 0);
+        parsedCount.innerText = words.length;
+        tagsContainer.innerHTML = '';
+        words.slice(0, 32).forEach(w => {
+          const span = document.createElement('span');
+          span.className = 'px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold border border-blue-200';
+          span.innerText = w;
+          tagsContainer.appendChild(span);
+        });
+        if (words.length > 32) {
+          const more = document.createElement('span');
+          more.className = 'text-xs text-slate-400 self-center font-medium';
+          more.innerText = `+ ${words.length - 32} weitere...`;
+          tagsContainer.appendChild(more);
+        }
+      }
+
+      textarea.addEventListener('input', updateEditorPreview);
+
+      // Button to restore default list
+      document.getElementById('resetToDefaultBtn').addEventListener('click', () => {
+        textarea.value = DEFAULT_TERMS;
+        updateEditorPreview();
+      });
+
+      // Clear all
+      document.getElementById('clearAllWordsBtn').addEventListener('click', () => {
+        textarea.value = '';
+        updateEditorPreview();
+      });
+
+      // Save words
+      document.getElementById('saveWordsBtn').addEventListener('click', () => {
+        const text = textarea.value;
+        const parsed = parseWordsFromString(text);
+
+        if (parsed.length === 0) {
+          saveFeedback.innerText = '⚠️ Bitte mindestens einen Begriff durch Semikolon getrennt eingeben.';
+          saveFeedback.classList.remove('hidden');
+          return;
+        }
+
+        localStorage.setItem(STORAGE_KEY, parsed.join('; '));
+        resetGameCycle();
+
+        saveFeedback.innerText = '✅ Begriffe gespeichert und Kiste neu befüllt!';
+        saveFeedback.classList.remove('hidden');
+        setTimeout(() => {
+          saveFeedback.classList.add('hidden');
+          adminModal.classList.add('hidden');
+        }, 900);
+      });
+
+      document.getElementById('closeAdminModalBtn').addEventListener('click', () => {
+        adminModal.classList.add('hidden');
+      });
+      document.getElementById('discardChangesBtn').addEventListener('click', () => {
+        adminModal.classList.add('hidden');
+      });
+
+      // Spacebar Hotkey
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+          e.preventDefault();
+          drawNextWord();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

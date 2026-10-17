@@ -1,0 +1,1046 @@
+<! #Dieser Code wurde generiert mit Gemini 3.8 Flash (Google, 2026)
+   # prompted by & manuell nachgebessert von Martina Spitaler
+   # Datum 15.10.2026
+   #Passwort: FRAGEN>
+
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Das Klassenzimmerquiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0b1a42 0%, #04091d 60%, #01030a 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Hexagonal styled studio container */
+        .widescreen-frame {
+            position: relative;
+            background: linear-gradient(180deg, #101c44 0%, #0a112c 100%);
+            border: 2px solid #4a6fa5;
+            box-shadow: 0 0 15px rgba(23, 73, 160, 0.45), inset 0 0 15px rgba(0, 0, 0, 0.85);
+            clip-path: polygon(18px 0%, calc(100% - 18px) 0%, 100% 50%, calc(100% - 18px) 100%, 18px 100%, 0% 50%);
+            transition: all 0.22s ease-in-out;
+        }
+
+        .widescreen-frame::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, #6aa9ff, transparent, #6aa9ff);
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        /* Question Box adjustments */
+        .question-container {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        /* Answer state styles & long-text support with strict vertical centering */
+        .btn-answer {
+            cursor: pointer;
+            position: relative;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            min-height: 5.5rem;
+            display: flex;
+            align-items: center; /* Vertically center content */
+            justify-content: flex-start;
+        }
+
+        .btn-answer:hover:not(.locked):not(.disabled-option) {
+            background: linear-gradient(180deg, #1a2f73 0%, #101d4a 100%);
+            border-color: #8bb9fe;
+            box-shadow: 0 0 25px rgba(50, 130, 255, 0.7);
+            transform: translateY(-1px);
+        }
+
+        .btn-answer.selected {
+            background: linear-gradient(180deg, #d97706 0%, #b45309 100%) !important;
+            border-color: #fef08a !important;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.9) !important;
+            animation: pulse-orange 0.8s infinite alternate;
+        }
+
+        .btn-answer.correct {
+            background: linear-gradient(180deg, #15803d 0%, #166534 100%) !important;
+            border-color: #86efac !important;
+            box-shadow: 0 0 35px rgba(34, 197, 94, 1) !important;
+            animation: flash-green 0.55s 3;
+        }
+
+        .btn-answer.wrong {
+            background: linear-gradient(180deg, #b91c1c 0%, #991b1b 100%) !important;
+            border-color: #fca5a5 !important;
+            box-shadow: 0 0 35px rgba(239, 68, 68, 1) !important;
+        }
+
+        .btn-answer.eliminated {
+            opacity: 0.12;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
+        @keyframes pulse-orange {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.25); }
+        }
+
+        @keyframes flash-green {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+
+        /* Ladder highlight styling */
+        .ladder-current {
+            background: linear-gradient(90deg, #d97706, #b45309) !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.8);
+            border-radius: 6px;
+        }
+        .ladder-safety {
+            color: #ffffff;
+            font-weight: 800;
+        }
+        .ladder-normal {
+            color: #f59e0b;
+        }
+        .ladder-passed {
+            color: #64748b;
+        }
+
+        /* Scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #253352;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090f20;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-100 p-2 sm:p-4">
+
+    <!-- Header Section -->
+    <header class="w-full max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-blue-900/60">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-blue-600/30 border-2 border-yellow-400 flex items-center justify-center font-black text-yellow-400 text-lg sm:text-xl shadow-[0_0_15px_rgba(250,204,21,0.5)]">
+                M
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 uppercase">
+                    Das Klassenzimmerquiz
+                </h1>
+                <span class="text-xs tracking-widest text-blue-300 uppercase font-semibold">Schul-Quiz Edition</span>
+            </div>
+        </div>
+
+        <div class="flex items-center flex-wrap gap-2">
+            <button id="soundToggleBtn" onclick="toggleMute()" class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-blue-950/80 hover:bg-blue-900 border border-blue-500/50 transition">
+                🔊 Ton An
+            </button>
+            <button onclick="requestPasswordAccess()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-amber-950/70 hover:bg-amber-900 border border-amber-500/70 text-amber-200 transition flex items-center gap-1.5 shadow">
+                🔒 <span>Lehrer*innen-Bereich</span>
+            </button>
+            <button onclick="surrenderGame()" id="walkAwayBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800 hover:bg-slate-700 border border-slate-600 transition text-slate-200">
+                🛑 Aufhören
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="w-full max-w-7xl mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 py-4">
+        
+        <!-- Left: Questions, Options & Jokers -->
+        <div class="lg:col-span-9 flex flex-col justify-between space-y-4">
+            
+            <!-- Joker Bar -->
+            <div class="flex justify-center items-center gap-4 sm:gap-8 py-1">
+                <button id="joker5050" onclick="use5050()" class="w-16 h-12 sm:w-20 sm:h-14 rounded-full border-2 border-blue-400 bg-gradient-to-b from-blue-900 to-blue-950 hover:from-blue-800 hover:to-blue-900 flex items-center justify-center font-black text-sm sm:text-base text-yellow-400 shadow-[0_0_15px_rgba(59,130,246,0.3)] transition transform hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none disabled:grayscale">
+                    50:50
+                </button>
+                <button id="jokerAudience" onclick="useAudience()" class="w-16 h-12 sm:w-20 sm:h-14 rounded-full border-2 border-blue-400 bg-gradient-to-b from-blue-900 to-blue-950 hover:from-blue-800 hover:to-blue-900 flex flex-col items-center justify-center font-bold text-xs sm:text-sm text-yellow-400 shadow-[0_0_15px_rgba(59,130,246,0.3)] transition transform hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none disabled:grayscale">
+                    <span class="text-sm">👥</span>
+                    <span class="text-[10px] tracking-tight">Klasse</span>
+                </button>
+                <button id="jokerPhone" onclick="usePhone()" class="w-16 h-12 sm:w-20 sm:h-14 rounded-full border-2 border-blue-400 bg-gradient-to-b from-blue-900 to-blue-950 hover:from-blue-800 hover:to-blue-900 flex flex-col items-center justify-center font-bold text-xs sm:text-sm text-yellow-400 shadow-[0_0_15px_rgba(59,130,246,0.3)] transition transform hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none disabled:grayscale">
+                    <span class="text-sm">📞</span>
+                    <span class="text-[10px] tracking-tight">Telefon</span>
+                </button>
+            </div>
+
+            <!-- Central Arena Display -->
+            <div class="my-auto flex flex-col items-center justify-center space-y-4">
+                
+                <!-- Status Badges -->
+                <div class="flex items-center space-x-2">
+                    <span id="levelBadge" class="bg-blue-950/80 border border-blue-400 text-blue-300 px-4 py-1 rounded-full text-xs sm:text-sm font-bold tracking-wider shadow">
+                        Frage 1 von 16 • 100 €
+                    </span>
+                    <span id="safetyBadge" class="bg-emerald-950/70 border border-emerald-500/60 text-emerald-300 px-3 py-1 rounded-full text-xs font-semibold">
+                        Sicher: 0 €
+                    </span>
+                </div>
+
+                <!-- Big Question Box -->
+                <div class="w-full relative px-1 sm:px-2">
+                    <div id="questionBox" class="widescreen-frame w-full min-h-[110px] sm:min-h-[140px] flex items-center justify-center text-center p-5 sm:p-7 question-container">
+                        <p id="questionText" class="text-base sm:text-lg md:text-xl font-bold leading-relaxed tracking-wide text-white drop-shadow-md">
+                            Frage lädt...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 4 Options Grid (Vertically centered letters & answer text up to 300 chars) -->
+                <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 px-1 sm:px-2 pt-1">
+                    
+                    <!-- Option A -->
+                    <div id="option-0" onclick="handleAnswerClick(0)" class="widescreen-frame btn-answer py-3.5 px-4 sm:px-6">
+                        <span class="text-amber-400 font-black text-base sm:text-lg mr-2.5 sm:mr-3.5 flex-shrink-0 flex items-center self-center">A:</span>
+                        <div class="flex-1 flex items-center self-stretch">
+                            <span id="text-option-0" class="text-xs sm:text-sm md:text-[14px] font-medium leading-relaxed">Antwort A</span>
+                        </div>
+                    </div>
+
+                    <!-- Option B -->
+                    <div id="option-1" onclick="handleAnswerClick(1)" class="widescreen-frame btn-answer py-3.5 px-4 sm:px-6">
+                        <span class="text-amber-400 font-black text-base sm:text-lg mr-2.5 sm:mr-3.5 flex-shrink-0 flex items-center self-center">B:</span>
+                        <div class="flex-1 flex items-center self-stretch">
+                            <span id="text-option-1" class="text-xs sm:text-sm md:text-[14px] font-medium leading-relaxed">Antwort B</span>
+                        </div>
+                    </div>
+
+                    <!-- Option C -->
+                    <div id="option-2" onclick="handleAnswerClick(2)" class="widescreen-frame btn-answer py-3.5 px-4 sm:px-6">
+                        <span class="text-amber-400 font-black text-base sm:text-lg mr-2.5 sm:mr-3.5 flex-shrink-0 flex items-center self-center">C:</span>
+                        <div class="flex-1 flex items-center self-stretch">
+                            <span id="text-option-2" class="text-xs sm:text-sm md:text-[14px] font-medium leading-relaxed">Antwort C</span>
+                        </div>
+                    </div>
+
+                    <!-- Option D -->
+                    <div id="option-3" onclick="handleAnswerClick(3)" class="widescreen-frame btn-answer py-3.5 px-4 sm:px-6">
+                        <span class="text-amber-400 font-black text-base sm:text-lg mr-2.5 sm:mr-3.5 flex-shrink-0 flex items-center self-center">D:</span>
+                        <div class="flex-1 flex items-center self-stretch">
+                            <span id="text-option-3" class="text-xs sm:text-sm md:text-[14px] font-medium leading-relaxed">Antwort D</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Host Comment / Status -->
+            <div class="w-full text-center py-1">
+                <p id="hostMessage" class="text-xs sm:text-sm text-blue-200/80 italic font-medium">
+                    Wähle die passende Antwort und klicke zum Einloggen.
+                </p>
+            </div>
+        </div>
+
+        <!-- Right: Money Ladder Tree -->
+        <div class="lg:col-span-3 bg-slate-950/70 rounded-2xl border border-blue-900/60 p-3 sm:p-4 flex flex-col justify-between shadow-2xl backdrop-blur-sm">
+            <h2 class="text-xs font-black tracking-widest text-slate-400 text-center uppercase mb-2">
+                Gewinnstufen
+            </h2>
+            <div id="ladderContainer" class="flex flex-col-reverse justify-between gap-1 text-xs sm:text-sm font-semibold select-none"></div>
+            <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-400 text-center">
+                Sicherheitsstufen bei <span class="text-white font-bold">500 €</span> und <span class="text-white font-bold">16.000 €</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer with CC License Notice -->
+    <footer class="w-full max-w-7xl mx-auto pt-3 pb-2 mt-auto border-t border-blue-900/40 text-center text-slate-400 text-xs">
+        <p class="leading-relaxed">
+            Das Klassenzimmerquiz © 2026 by Martina Spitaler is licensed under 
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer" class="text-amber-300 hover:text-amber-200 underline underline-offset-2 font-medium transition">
+                CC BY-NC-SA 4.0
+            </a>
+        </p>
+    </footer>
+
+    <!-- Audience / Class Joker Modal -->
+    <div id="audienceModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gradient-to-b from-slate-900 to-blue-950 border border-blue-500 rounded-2xl p-6 max-w-md w-full shadow-[0_0_40px_rgba(37,99,235,0.4)]">
+            <h3 class="text-xl font-black text-amber-400 text-center mb-1">Klassen- & Publikumsbefragung</h3>
+            <p class="text-xs text-slate-300 text-center mb-6">Das Klassenpublikum hat abgestimmt:</p>
+            <div class="space-y-3" id="audienceBarsContainer"></div>
+            <button onclick="closeModal('audienceModal')" class="mt-6 w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow">
+                Verstanden
+            </button>
+        </div>
+    </div>
+
+    <!-- Phone Joker Modal -->
+    <div id="phoneModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gradient-to-b from-slate-900 to-blue-950 border border-blue-500 rounded-2xl p-6 max-w-md w-full shadow-[0_0_40px_rgba(37,99,235,0.4)]">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-2xl shadow">
+                    📞
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Telefon-Joker</h3>
+                    <p class="text-xs text-blue-300">Anruf beim Experten</p>
+                </div>
+            </div>
+            <div class="bg-blue-950/70 border border-blue-700/50 p-4 rounded-xl text-sm italic text-slate-100 mb-6 leading-relaxed" id="phoneHintText">
+                "Hmm... lass mich kurz überlegen..."
+            </div>
+            <button onclick="closeModal('phoneModal')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow">
+                Danke für den Tipp!
+            </button>
+        </div>
+    </div>
+
+    <!-- Game End / Victory Modal -->
+    <div id="resultModal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gradient-to-b from-slate-900 to-blue-950 border-2 border-yellow-500 rounded-2xl p-6 sm:p-8 max-w-lg w-full text-center shadow-[0_0_50px_rgba(234,179,8,0.4)]">
+            <div id="resultIcon" class="text-5xl sm:text-6xl mb-3">🏆</div>
+            <h3 id="resultTitle" class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500 uppercase mb-2">
+                Herzlichen Glückwunsch!
+            </h3>
+            <p id="resultSubtitle" class="text-slate-300 text-sm mb-4">Du nimmst folgende Summe mit nach Hause:</p>
+            
+            <div id="resultPrize" class="text-3xl sm:text-4xl font-extrabold text-yellow-400 py-3 px-6 bg-blue-950/80 border border-yellow-500/50 rounded-xl my-4 inline-block shadow">
+                1.000.000 €
+            </div>
+
+            <p id="resultDetail" class="text-xs sm:text-sm text-slate-300 mb-6 px-4">
+                Klasse Leistung! Du hast die Fragen bravourös gemeistert.
+            </p>
+
+            <button onclick="restartGame()" class="w-full py-3 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-black tracking-wider uppercase rounded-xl transition shadow-lg transform hover:scale-[1.02] active:scale-95">
+                Neues Spiel starten
+            </button>
+        </div>
+    </div>
+
+    <!-- Password Prompt Modal -->
+    <div id="passwordModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-slate-900 border border-amber-500/80 rounded-2xl p-6 max-w-md w-full shadow-[0_0_35px_rgba(245,158,11,0.3)]">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-2xl">
+                    🔒
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Lehrer*innen-Bereich</h3>
+                    <p class="text-xs text-slate-400">Passwortgeschützter Bereich zur Fragenerfassung</p>
+                </div>
+            </div>
+
+            <form onsubmit="handlePasswordSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Passwort eingeben</label>
+                    <input type="password" id="passwordInput" placeholder="Passwort..." class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-400">
+                </div>
+                
+                <div id="passwordError" class="text-xs text-red-400 bg-red-950/60 border border-red-800/60 p-2.5 rounded-lg hidden flex items-center gap-2">
+                    <span>⚠️</span> <span>Falsches Passwort! Zugriff verweigert.</span>
+                </div>
+
+                <div class="flex gap-2 justify-end pt-2">
+                    <button type="button" onclick="closeModal('passwordModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-lg transition">
+                        Abbrechen
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black tracking-wide rounded-lg transition shadow">
+                        Freischalten
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Text Format Question Editor Modal -->
+    <div id="editorModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-5 sm:p-6 max-w-5xl w-full max-h-[95vh] flex flex-col shadow-2xl">
+            <div class="flex justify-between items-start pb-3 border-b border-slate-800">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">✏️</span>
+                        <h3 class="text-lg font-bold text-white">Fragenkatalog & Eingabemaske</h3>
+                        <span class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-600/50 px-2 py-0.5 rounded font-mono">Freigeschaltet</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">
+                        Format pro Zeile: <span class="text-amber-300 font-mono">Frage; A: Antwort; B: Antwort; C: Antwort; D: Antwort; ANS: [A, B, C, D oder Text]</span>
+                    </p>
+                </div>
+                <button onclick="closeModal('editorModal')" class="text-slate-400 hover:text-white text-xl font-bold p-1">✕</button>
+            </div>
+
+            <!-- Notice about up to 300 Characters -->
+            <div class="my-3 p-3.5 rounded-xl bg-gradient-to-r from-amber-950/60 via-blue-950/60 to-slate-900 border border-amber-500/50 flex items-start gap-3 shadow-inner">
+                <span class="text-2xl flex-shrink-0 mt-0.5">ℹ️</span>
+                <div class="text-xs leading-relaxed space-y-1">
+                    <p class="font-bold text-amber-300 text-sm">
+                        Hinweis zur Textlänge: Jede Antwortalternative kann bis zu 300 Zeichen umfassen!
+                    </p>
+                    <p class="text-slate-200">
+                        Auch Fragen können ausführliche und längere Texte enthalten. Das Spielfeld zentriert Texte und Kennbuchstaben vertikal, bricht lange Wörter automatisch um und skaliert die Schriftgröße ideal für Beamer und Bildschirme.
+                    </p>
+                </div>
+            </div>
+
+            <div class="my-1 flex-1 flex flex-col overflow-hidden">
+                <div class="flex justify-between items-center mb-1">
+                    <label class="text-xs font-semibold text-slate-300">
+                        Fragenliste (1 Zeile = 1 Frage):
+                    </label>
+                    <span id="lineCountLabel" class="text-slate-400 font-mono text-[11px]">0 Zeilen</span>
+                </div>
+                <textarea id="textEditorArea" oninput="updateEditorLineCount()" class="w-full flex-1 min-h-[260px] bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-400 leading-relaxed resize-none overflow-y-auto whitespace-pre"></textarea>
+                
+                <div id="parseStatus" class="mt-2 text-xs p-2.5 rounded-lg hidden font-medium"></div>
+            </div>
+
+            <div class="flex flex-wrap justify-between items-center gap-2 pt-3 border-t border-slate-800">
+                <div class="flex gap-2">
+                    <button onclick="resetToDefaultTextQuestions()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition">
+                        🔄 Österreich-Standardfragen laden
+                    </button>
+                    <button onclick="clearEditorArea()" class="px-3 py-2 bg-red-950/40 hover:bg-red-900/60 border border-red-800/40 text-red-300 text-xs font-semibold rounded-lg transition">
+                        Leeren
+                    </button>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="closeModal('editorModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition">
+                        Abbrechen
+                    </button>
+                    <button onclick="saveCustomTextQuestions()" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider rounded-lg transition shadow">
+                        💾 Fragen speichern & Spiel starten
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API synthesizer for sound effects
+        let audioCtx = null;
+        let isMuted = false;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('soundToggleBtn');
+            btn.innerText = isMuted ? '🔇 Ton Aus' : '🔊 Ton An';
+            btn.className = isMuted 
+                ? 'px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-red-950/80 hover:bg-red-900 border border-red-500/50 transition text-red-200'
+                : 'px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-blue-950/80 hover:bg-blue-900 border border-blue-500/50 transition';
+        }
+
+        const Sound = {
+            playTone(freq, duration, type = 'sine', gainVal = 0.1) {
+                if (isMuted) return;
+                try {
+                    const ctx = getAudioContext();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+                    gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start();
+                    osc.stop(ctx.currentTime + duration);
+                } catch (e) {
+                    console.error("Audio error", e);
+                }
+            },
+
+            lockIn() {
+                this.playTone(220, 0.25, 'triangle', 0.15);
+                setTimeout(() => this.playTone(277, 0.4, 'triangle', 0.15), 120);
+            },
+
+            correct() {
+                const notes = [293.66, 369.99, 440, 587.33];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 0.45, 'sine', 0.14), idx * 100);
+                });
+            },
+
+            wrong() {
+                if (isMuted) return;
+                try {
+                    const ctx = getAudioContext();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(140, ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(70, ctx.currentTime + 0.7);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.7);
+                } catch(e){}
+            },
+
+            fanfare() {
+                const fanfareNotes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+                fanfareNotes.forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 0.65, 'triangle', 0.18), idx * 135);
+                });
+            },
+
+            joker() {
+                this.playTone(523, 0.15, 'sine', 0.1);
+                setTimeout(() => this.playTone(659, 0.25, 'sine', 0.1), 120);
+            }
+        };
+
+        const PRIZES = [
+            100, 200, 300, 500, 1000,
+            2000, 4000, 8000, 16000, 32000,
+            64000, 125000, 250000, 500000, 750000, 1000000
+        ];
+
+        /* Requested 16 questions about Austria */
+        const DEFAULT_TEXT_QUESTIONS = 
+`Wie heißt die Hauptstadt von Österreich?; A: Graz; B: Salzburg; C: Wien; D: Innsbruck; ANS: C
+Welche Farben hat die österreichische Flagge?; A: Rot-Weiß-Rot; B: Schwarz-Rot-Gold; C: Blau-Weiß-Rot; D: Grün-Weiß-Rot; ANS: A
+Wie viele Bundesländer hat Österreich?; A: Sieben; B: Acht; C: Neun; D: Zehn; ANS: C
+Welcher Fluss fließt durch Wien?; A: Rhein; B: Donau; C: Inn; D: Mur; ANS: B
+Wie heißt der höchste Berg Österreichs?; A: Dachstein; B: Großvenediger; C: Wildspitze; D: Großglockner; ANS: D
+Welches österreichische Bundesland ist flächenmäßig das größte?; A: Niederösterreich; B: Steiermark; C: Tirol; D: Oberösterreich; ANS: A
+An welche zwei Länder grenzt Österreich im Norden?; A: Italien und Slowenien; B: Deutschland und Tschechien; C: Schweiz und Liechtenstein; D: Ungarn und Slowakei; ANS: B
+Welcher berühmte Komponist wurde 1756 in Salzburg geboren?; A: Joseph Haydn; B: Franz Schubert; C: Wolfgang Amadeus Mozart; D: Johann Strauss Sohn; ANS: C
+Welches Bundesland hat die Landeshauptstadt Bregenz?; A: Kärnten; B: Vorarlberg; C: Salzburg; D: Burgenland; ANS: B
+An welchem Tag feiert Österreich seinen Nationalfeiertag?; A: 1. Mai; B: 26. Oktober; C: 6. Dezember; D: 8. Dezember; ANS: B
+Welcher österreichische See ist der größte See, der vollständig innerhalb Österreichs liegt?; A: Wörthersee; B: Wolfgangsee; C: Attersee; D: Neusiedler See; ANS: C
+Was wurde 1955 mit dem österreichischen Staatsvertrag wiederhergestellt?; A: Die Monarchie; B: Die vollständige staatliche Souveränität Österreichs; C: Die Herrschaft des Kaisers; D: Die Zugehörigkeit zu Deutschland; ANS: B
+Welches österreichische Bundesland grenzt sowohl an Deutschland als auch an Italien?; A: Tirol; B: Burgenland; C: Wien; D: Niederösterreich; ANS: A
+Welche Aufgabe hat der österreichische Nationalrat hauptsächlich?; A: Er leitet alle Schulen des Landes; B: Er wählt die Bürgermeisterinnen und Bürgermeister direkt; C: Er beschließt Bundesgesetze und kontrolliert die Bundesregierung; D: Er entscheidet allein über alle Gerichtsverfahren; ANS: C
+Warum wurde der 26. Oktober als österreichischer Nationalfeiertag gewählt?; A: An diesem Tag wurde Österreich Mitglied der Europäischen Union; B: An diesem Tag trat 1955 das Gesetz über die immerwährende Neutralität in Kraft; C: An diesem Tag endete der Erste Weltkrieg; D: An diesem Tag wurde die österreichische Flagge erstmals gehisst; ANS: B
+Österreich ist eine föderale Republik. Was bedeutet das für die Aufteilung der staatlichen Aufgaben?; A: Alle staatlichen Aufgaben werden ausschließlich von den Gemeinden erledigt; B: Die neun Bundesländer sind unabhängige Staaten mit eigenen Armeen; C: Bund, Länder und Gemeinden haben unterschiedliche Aufgaben und Zuständigkeiten; D: Der Bundespräsident entscheidet allein über alle Gesetze und Landesangelegenheiten; ANS: C`;
+
+        // Parser for specified syntax: Frage; A: ...; B: ...; C: ...; D: ...; ANS: ...
+        function parseTextQuestions(rawText) {
+            const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0 && !l.startsWith('#'));
+            const parsedList = [];
+            const errors = [];
+            const seenQuestions = new Set();
+
+            lines.forEach((line, lineIndex) => {
+                const parts = line.split(';').map(p => p.trim());
+                if (parts.length < 6) {
+                    errors.push(`Zeile ${lineIndex + 1}: Zu wenige Teile durch Strichpunkt getrennt.`);
+                    return;
+                }
+
+                const questionText = parts[0];
+                
+                // Prevent duplicate lines
+                if (seenQuestions.has(questionText)) {
+                    return;
+                }
+
+                let optA = '', optB = '', optC = '', optD = '';
+                let ansValue = '';
+
+                for (let i = 1; i < parts.length; i++) {
+                    const segment = parts[i];
+                    if (/^A\s*:/i.test(segment)) {
+                        optA = segment.replace(/^A\s*:/i, '').trim();
+                    } else if (/^B\s*:/i.test(segment)) {
+                        optB = segment.replace(/^B\s*:/i, '').trim();
+                    } else if (/^C\s*:/i.test(segment)) {
+                        optC = segment.replace(/^C\s*:/i, '').trim();
+                    } else if (/^D\s*:/i.test(segment)) {
+                        optD = segment.replace(/^D\s*:/i, '').trim();
+                    } else if (/^ANS\s*:/i.test(segment)) {
+                        ansValue = segment.replace(/^ANS\s*:/i, '').trim();
+                    }
+                }
+
+                if (!optA && parts[1]) optA = parts[1];
+                if (!optB && parts[2]) optB = parts[2];
+                if (!optC && parts[3]) optC = parts[3];
+                if (!optD && parts[4]) optD = parts[4];
+                if (!ansValue && parts[5]) ansValue = parts[5];
+
+                const options = [optA, optB, optC, optD];
+                let correctIndex = -1;
+
+                const upperAns = ansValue.toUpperCase();
+                if (upperAns === 'A' || upperAns === '0') correctIndex = 0;
+                else if (upperAns === 'B' || upperAns === '1') correctIndex = 1;
+                else if (upperAns === 'C' || upperAns === '2') correctIndex = 2;
+                else if (upperAns === 'D' || upperAns === '3') correctIndex = 3;
+                else {
+                    const matchIdx = options.findIndex(opt => opt.toLowerCase() === ansValue.toLowerCase());
+                    if (matchIdx !== -1) {
+                        correctIndex = matchIdx;
+                    }
+                }
+
+                if (!questionText || options.some(opt => !opt) || correctIndex === -1) {
+                    errors.push(`Zeile ${lineIndex + 1}: Bitte prüfen, ob Frage, A-D und ANS korrekt angegeben sind.`);
+                    return;
+                }
+
+                seenQuestions.add(questionText);
+                parsedList.push({
+                    q: questionText,
+                    options: options,
+                    answer: correctIndex
+                });
+            });
+
+            return { questions: parsedList, errors: errors };
+        }
+
+        // Initialize state
+        let rawStoredText = localStorage.getItem('millionaire_text_questions_v3') || DEFAULT_TEXT_QUESTIONS;
+        let parsedResult = parseTextQuestions(rawStoredText);
+        let questions = parsedResult.questions.length > 0 ? parsedResult.questions : parseTextQuestions(DEFAULT_TEXT_QUESTIONS).questions;
+
+        let currentQuestionIdx = 0;
+        let selectedOptionIdx = null;
+        let isInputLocked = false;
+        let eliminatedOptions = [];
+        let usedJokers = {
+            fifty: false,
+            audience: false,
+            phone: false
+        };
+
+        function renderLadder() {
+            const container = document.getElementById('ladderContainer');
+            container.innerHTML = '';
+
+            const total = questions.length;
+
+            for (let i = 0; i < total; i++) {
+                const stepNum = i + 1;
+                const isSafety = (stepNum === 4 || stepNum === 9 || stepNum === total);
+                const isCurrent = (i === currentQuestionIdx);
+                const isPassed = (i < currentQuestionIdx);
+
+                const item = document.createElement('div');
+                item.id = `ladder-step-${i}`;
+                item.className = 'flex justify-between items-center px-2.5 py-1 rounded transition duration-200';
+
+                let textClass = 'ladder-normal';
+                if (isPassed) {
+                    textClass = 'ladder-passed';
+                } else if (isSafety) {
+                    textClass = 'ladder-safety';
+                }
+
+                if (isCurrent) {
+                    item.className += ' ladder-current';
+                } else {
+                    item.className += ` ${textClass}`;
+                }
+
+                const prizeVal = PRIZES[i] || (PRIZES[PRIZES.length - 1] + (i - (PRIZES.length - 1)) * 100000);
+                const formattedPrize = prizeVal.toLocaleString('de-DE') + ' €';
+
+                item.innerHTML = `
+                    <span class="w-6 font-bold opacity-80">${stepNum}</span>
+                    <span class="tracking-wider ${isSafety ? 'font-extrabold' : ''}">${formattedPrize}</span>
+                `;
+                container.appendChild(item);
+            }
+        }
+
+        function getSafePrize() {
+            if (currentQuestionIdx >= 9) return 16000;
+            if (currentQuestionIdx >= 4) return 500;
+            return 0;
+        }
+
+        function getCurrentPrizeWon() {
+            if (currentQuestionIdx === 0) return 0;
+            return PRIZES[currentQuestionIdx - 1] || PRIZES[PRIZES.length - 1];
+        }
+
+        function loadCurrentQuestion() {
+            if (currentQuestionIdx >= questions.length) {
+                showVictory();
+                return;
+            }
+
+            isInputLocked = false;
+            selectedOptionIdx = null;
+            eliminatedOptions = [];
+
+            const qData = questions[currentQuestionIdx];
+            const currentPrizeVal = PRIZES[currentQuestionIdx] || PRIZES[PRIZES.length - 1];
+            const currentPrize = currentPrizeVal.toLocaleString('de-DE') + ' €';
+
+            document.getElementById('levelBadge').innerText = `Frage ${currentQuestionIdx + 1} von ${questions.length} • ${currentPrize}`;
+            document.getElementById('safetyBadge').innerText = `Sicher: ${getSafePrize().toLocaleString('de-DE')} €`;
+            
+            // Adjust question font size based on length
+            const questionTextEl = document.getElementById('questionText');
+            questionTextEl.innerText = qData.q;
+            if (qData.q.length > 200) {
+                questionTextEl.className = "text-sm sm:text-base md:text-lg font-bold leading-relaxed tracking-wide text-white drop-shadow-md";
+            } else if (qData.q.length > 110) {
+                questionTextEl.className = "text-base sm:text-lg md:text-xl font-bold leading-relaxed tracking-wide text-white drop-shadow-md";
+            } else {
+                questionTextEl.className = "text-base sm:text-xl md:text-2xl font-bold leading-relaxed tracking-wide text-white drop-shadow-md";
+            }
+
+            document.getElementById('hostMessage').innerText = "Wähle deine Antwort aus und logge sie ein!";
+
+            // Reset Options & adapt font sizes dynamically up to 300 characters
+            for (let i = 0; i < 4; i++) {
+                const optEl = document.getElementById(`option-${i}`);
+                const textEl = document.getElementById(`text-option-${i}`);
+                optEl.className = 'widescreen-frame btn-answer py-3.5 px-4 sm:px-6';
+                
+                const optText = qData.options[i] || '';
+                textEl.innerText = optText;
+
+                if (optText.length > 180) {
+                    textEl.className = "text-[11px] sm:text-xs leading-relaxed font-medium";
+                } else if (optText.length > 90) {
+                    textEl.className = "text-xs sm:text-[13px] leading-relaxed font-medium";
+                } else {
+                    textEl.className = "text-xs sm:text-sm md:text-[14px] leading-relaxed font-medium";
+                }
+            }
+
+            renderLadder();
+        }
+
+        function handleAnswerClick(index) {
+            if (isInputLocked || eliminatedOptions.includes(index)) return;
+
+            if (selectedOptionIdx === null) {
+                selectedOptionIdx = index;
+                const optEl = document.getElementById(`option-${index}`);
+                optEl.classList.add('selected');
+                
+                Sound.lockIn();
+                document.getElementById('hostMessage').innerText = "Eingeloggt! Die Antwort wird überprüft...";
+
+                isInputLocked = true;
+                setTimeout(() => evaluateAnswer(index), 1500);
+            }
+        }
+
+        function evaluateAnswer(chosenIndex) {
+            const currentQ = questions[currentQuestionIdx];
+            const correctIndex = currentQ.answer;
+            const chosenEl = document.getElementById(`option-${chosenIndex}`);
+            const correctEl = document.getElementById(`option-${correctIndex}`);
+
+            if (chosenIndex === correctIndex) {
+                chosenEl.classList.remove('selected');
+                chosenEl.classList.add('correct');
+                Sound.correct();
+                document.getElementById('hostMessage').innerText = "Richtig! Hervorragend gelöst!";
+
+                setTimeout(() => {
+                    currentQuestionIdx++;
+                    if (currentQuestionIdx < questions.length) {
+                        loadCurrentQuestion();
+                    } else {
+                        showVictory();
+                    }
+                }, 1700);
+
+            } else {
+                chosenEl.classList.remove('selected');
+                chosenEl.classList.add('wrong');
+                if (correctEl) correctEl.classList.add('correct');
+                Sound.wrong();
+                document.getElementById('hostMessage').innerText = `Leider falsch! Die richtige Antwort war: ${String.fromCharCode(65 + correctIndex)}`;
+
+                setTimeout(() => {
+                    const fallbackWon = getSafePrize();
+                    showGameOver(false, fallbackWon);
+                }, 1900);
+            }
+        }
+
+        function use5050() {
+            if (usedJokers.fifty || isInputLocked) return;
+            usedJokers.fifty = true;
+            document.getElementById('joker5050').disabled = true;
+            Sound.joker();
+
+            const correctIdx = questions[currentQuestionIdx].answer;
+            const wrongIndices = [0, 1, 2, 3].filter(idx => idx !== correctIdx);
+
+            const shuffled = wrongIndices.sort(() => 0.5 - Math.random());
+            const toEliminate = shuffled.slice(0, 2);
+
+            toEliminate.forEach(idx => {
+                eliminatedOptions.push(idx);
+                const el = document.getElementById(`option-${idx}`);
+                el.classList.add('eliminated');
+            });
+
+            document.getElementById('hostMessage').innerText = "50:50 Joker eingesetzt: Zwei falsche Antworten sind weg!";
+        }
+
+        function useAudience() {
+            if (usedJokers.audience || isInputLocked) return;
+            usedJokers.audience = true;
+            document.getElementById('jokerAudience').disabled = true;
+            Sound.joker();
+
+            const correctIdx = questions[currentQuestionIdx].answer;
+            let percentages = [0, 0, 0, 0];
+
+            const difficultyBias = Math.max(35, 75 - (currentQuestionIdx * 2.5));
+            let remaining = 100 - difficultyBias;
+            percentages[correctIdx] = Math.round(difficultyBias);
+
+            const otherIndices = [0, 1, 2, 3].filter(i => i !== correctIdx && !eliminatedOptions.includes(i));
+            for (let i = 0; i < otherIndices.length; i++) {
+                if (i === otherIndices.length - 1) {
+                    percentages[otherIndices[i]] = remaining;
+                } else {
+                    const part = Math.floor(Math.random() * (remaining / 1.5));
+                    percentages[otherIndices[i]] = part;
+                    remaining -= part;
+                }
+            }
+
+            const container = document.getElementById('audienceBarsContainer');
+            container.innerHTML = '';
+            const labels = ['A', 'B', 'C', 'D'];
+
+            percentages.forEach((pct, idx) => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center text-xs font-bold';
+                row.innerHTML = `
+                    <span class="w-6 text-amber-400 font-extrabold">${labels[idx]}:</span>
+                    <div class="flex-1 bg-slate-800 rounded-full h-4 overflow-hidden mx-2 border border-blue-900">
+                        <div class="bg-gradient-to-r from-blue-500 to-amber-400 h-full rounded-full transition-all duration-700" style="width: ${pct}%"></div>
+                    </div>
+                    <span class="w-10 text-right text-slate-200">${pct}%</span>
+                `;
+                container.appendChild(row);
+            });
+
+            document.getElementById('audienceModal').classList.remove('hidden');
+        }
+
+        function usePhone() {
+            if (usedJokers.phone || isInputLocked) return;
+            usedJokers.phone = true;
+            document.getElementById('jokerPhone').disabled = true;
+            Sound.joker();
+
+            const correctIdx = questions[currentQuestionIdx].answer;
+            const letters = ['A', 'B', 'C', 'D'];
+            const correctLetter = letters[correctIdx];
+
+            const isConfident = Math.random() < (0.85 - currentQuestionIdx * 0.02);
+            let suggestedLetter = correctLetter;
+
+            if (!isConfident) {
+                const possible = [0, 1, 2, 3].filter(i => !eliminatedOptions.includes(i));
+                suggestedLetter = letters[possible[Math.floor(Math.random() * possible.length)]];
+            }
+
+            const phrases = [
+                `"Hallo! Das Thema kenne ich gut. Ich tippe mit großer Überzeugung auf Antwort ${suggestedLetter}!"`,
+                `"Puh, eine anspruchsvolle Frage. Nach kurzem Nachdenken halte ich Antwort ${suggestedLetter} für am plausibelsten."`,
+                `"Da bin ich mir ziemlich sicher: Es müsste sehr wahrscheinlich ${suggestedLetter} sein!"`
+            ];
+
+            const hint = phrases[Math.floor(Math.random() * phrases.length)];
+            document.getElementById('phoneHintText').innerText = hint;
+            document.getElementById('phoneModal').classList.remove('hidden');
+        }
+
+        function surrenderGame() {
+            if (isInputLocked) return;
+            const prize = getCurrentPrizeWon();
+            showGameOver(true, prize);
+        }
+
+        function showVictory() {
+            Sound.fanfare();
+            document.getElementById('resultIcon').innerText = '🏆';
+            document.getElementById('resultTitle').innerText = 'DIE MILLION GEKNACKT!';
+            document.getElementById('resultSubtitle').innerText = 'Alle Stufen wurden meisterhaft bezwungen:';
+            document.getElementById('resultPrize').innerText = '1.000.000 €';
+            document.getElementById('resultDetail').innerText = 'Fantastische Leistung! Ein wahrer Meister des Österreich-Wissens.';
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+
+        function showGameOver(voluntary, amount) {
+            document.getElementById('resultIcon').innerText = voluntary ? '💼' : '💥';
+            document.getElementById('resultTitle').innerText = voluntary 
+                ? 'Du nimmst deinen erspielten Gewinn sicher mit:' 
+                : 'Eine falsche Antwort! Du fällst zurück auf deine Sicherheitsstufe:';
+            document.getElementById('resultPrize').innerText = `${amount.toLocaleString('de-DE')} €`;
+            document.getElementById('resultDetail').innerText = voluntary
+                ? 'Strategisch klug gehandelt! Lieber die Summe sichern als zu zocken.'
+                : 'Schade, aber großartig gekämpft! Versucht es gerne gleich nochmal.';
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function restartGame() {
+            closeModal('resultModal');
+            currentQuestionIdx = 0;
+            usedJokers = { fifty: false, audience: false, phone: false };
+            
+            document.getElementById('joker5050').disabled = false;
+            document.getElementById('jokerAudience').disabled = false;
+            document.getElementById('jokerPhone').disabled = false;
+
+            loadCurrentQuestion();
+        }
+
+        const EDITOR_PASSWORD = "FRAGEN";
+
+        function requestPasswordAccess() {
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('passwordModal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('passwordInput').focus();
+            }, 100);
+        }
+
+        function handlePasswordSubmit(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('passwordInput').value.trim();
+
+            if (inputVal.toUpperCase() === EDITOR_PASSWORD) {
+                closeModal('passwordModal');
+                openEditorModal();
+            } else {
+                const errBox = document.getElementById('passwordError');
+                errBox.classList.remove('hidden');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        function openEditorModal() {
+            const savedText = localStorage.getItem('millionaire_text_questions_v3') || DEFAULT_TEXT_QUESTIONS;
+            document.getElementById('textEditorArea').value = savedText;
+            document.getElementById('parseStatus').classList.add('hidden');
+            updateEditorLineCount();
+            document.getElementById('editorModal').classList.remove('hidden');
+        }
+
+        function updateEditorLineCount() {
+            const text = document.getElementById('textEditorArea').value;
+            const lines = text.split('\n').filter(l => l.trim().length > 0 && !l.trim().startsWith('#'));
+            document.getElementById('lineCountLabel').innerText = `${lines.length} Zeile(n) erkannt`;
+        }
+
+        function resetToDefaultTextQuestions() {
+            document.getElementById('textEditorArea').value = DEFAULT_TEXT_QUESTIONS;
+            updateEditorLineCount();
+            const statusEl = document.getElementById('parseStatus');
+            statusEl.className = 'mt-2 text-xs p-2.5 rounded-lg bg-blue-950/70 text-blue-300 border border-blue-800';
+            statusEl.innerText = "Österreich-Standardfragen wurden geladen.";
+            statusEl.classList.remove('hidden');
+        }
+
+        function clearEditorArea() {
+            document.getElementById('textEditorArea').value = '';
+            updateEditorLineCount();
+            document.getElementById('parseStatus').classList.add('hidden');
+        }
+
+        function saveCustomTextQuestions() {
+            const rawText = document.getElementById('textEditorArea').value;
+            const result = parseTextQuestions(rawText);
+            const statusEl = document.getElementById('parseStatus');
+
+            if (result.errors.length > 0) {
+                statusEl.className = 'mt-2 text-xs p-2.5 rounded-lg bg-red-950/80 text-red-300 border border-red-700';
+                statusEl.innerHTML = `<strong>Fehler beim Parsen:</strong><br>${result.errors.slice(0, 3).join('<br>')}${result.errors.length > 3 ? '<br>... und weitere Fehler.' : ''}`;
+                statusEl.classList.remove('hidden');
+                return;
+            }
+
+            if (result.questions.length === 0) {
+                statusEl.className = 'mt-2 text-xs p-2.5 rounded-lg bg-red-950/80 text-red-300 border border-red-700';
+                statusEl.innerText = "Fehler: Es wurden keine gültigen Fragen gefunden!";
+                statusEl.classList.remove('hidden');
+                return;
+            }
+
+            questions = result.questions;
+            localStorage.setItem('millionaire_text_questions_v3', rawText);
+
+            statusEl.className = 'mt-2 text-xs p-2.5 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-700';
+            statusEl.innerText = `Erfolgreich gespeichert! ${questions.length} Fragen geladen.`;
+            statusEl.classList.remove('hidden');
+
+            setTimeout(() => {
+                closeModal('editorModal');
+                restartGame();
+            }, 800);
+        }
+
+        // Keyboard hotkeys
+        window.addEventListener('keydown', (e) => {
+            const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+            if (activeTag === 'input' || activeTag === 'textarea') return;
+
+            const key = e.key.toUpperCase();
+            if (['A', 'B', 'C', 'D'].includes(key)) {
+                const map = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
+                handleAnswerClick(map[key]);
+            }
+        });
+
+        // Initialize on load
+        window.onload = function() {
+            loadCurrentQuestion();
+        };
+    </script>
+</body>
+</html>
