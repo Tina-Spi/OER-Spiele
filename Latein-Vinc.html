@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Latein Vokabeltrainer (Kapitel 1 - 20)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            roman: ['Cinzel', 'serif']
+          },
+          colors: {
+            crimson: {
+              DEFAULT: '#dc2626',
+              dark: '#991b1b',
+              light: '#f87171'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* 3D Flip Card Effect */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-preserve-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background-color: #e5e7eb;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-white text-black min-h-screen flex flex-col font-sans antialiased selection:bg-red-600 selection:text-white">
+
+  <!-- Main Content Container (Kein Header) -->
+  <main class="flex-grow max-w-4xl w-full mx-auto p-4 sm:p-8 flex flex-col items-center justify-center">
+
+    <!-- VIEW 1: CHAPTER SELECTION -->
+    <section id="chapterView" class="w-full transition-all duration-300">
+      
+      <!-- Titelbereich direkt im Body -->
+      <div class="text-center mb-8 pt-4">
+        <span class="inline-block px-3 py-1 bg-red-50 text-red-700 text-xs font-bold uppercase tracking-widest rounded-full border border-red-200">
+          FÜR VINC
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-black font-roman text-black mt-3 tracking-wide">
+          VOCABULA LATINA
+        </h1>
+        <p class="text-neutral-600 text-sm sm:text-base mt-2 flex items-center justify-center gap-1.5 font-medium">
+          mit Liebe gemacht von Tina <i class="fa-solid fa-heart text-red-600 animate-pulse text-xs"></i>
+        </p>
+      </div>
+
+      <!-- Schnellzugriff / Statusleiste -->
+      <div class="bg-white p-5 rounded-2xl border-2 border-black mb-6 flex flex-wrap items-center justify-between gap-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-red-600 text-white rounded-xl flex items-center justify-center font-bold">
+            <i class="fa-solid fa-book-bookmark text-base"></i>
+          </div>
+          <div>
+            <div class="text-[11px] text-neutral-500 uppercase font-bold tracking-wider">Status</div>
+            <div id="overviewStatsText" class="text-sm sm:text-base font-bold text-black">20 Kapitel bereit</div>
+          </div>
+        </div>
+
+        <button type="button" id="btnOpenEditor" class="w-full sm:w-auto px-5 py-2.5 bg-black hover:bg-neutral-800 text-white rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 border border-black active:translate-y-0.5 cursor-pointer">
+          <i class="fa-solid fa-pen-to-square text-red-500"></i>
+          <span>Vokabeln bearbeiten / erfassen</span>
+        </button>
+      </div>
+
+      <!-- Kapitel-Raster -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3.5" id="chapterGrid">
+        <!-- Generiert per JS -->
+      </div>
+    </section>
+
+    <!-- VIEW 2: FLASHCARD LEARNING VIEW -->
+    <section id="trainingView" class="w-full max-w-xl hidden flex-col items-center">
+      
+      <!-- Obere Statusleiste -->
+      <div class="w-full flex items-center justify-between mb-5 px-1">
+        <button type="button" id="btnExitChapter" class="text-xs font-bold text-black hover:text-red-600 transition flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-black bg-white hover:bg-red-50 cursor-pointer">
+          <i class="fa-solid fa-arrow-left"></i> Zurück
+        </button>
+
+        <span id="trainingChapterBadge" class="font-bold text-xs text-white bg-black px-3.5 py-1.5 rounded-full border border-black">
+          Kapitel 1
+        </span>
+
+        <div class="text-xs font-bold text-neutral-800 flex items-center gap-1.5 bg-neutral-100 px-3 py-1.5 rounded-lg border border-neutral-300">
+          <i class="fa-solid fa-layer-group text-red-600"></i>
+          <span id="queueCounter">0</span> Vokabeln
+        </div>
+      </div>
+
+      <!-- Statistiken -->
+      <div class="w-full grid grid-cols-3 gap-3 mb-6 text-center">
+        <div class="bg-white border-2 border-black rounded-xl p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+          <div class="text-xs text-neutral-600 font-bold flex items-center justify-center gap-1">
+            <i class="fa-solid fa-check text-black"></i> Richtig
+          </div>
+          <div id="statCorrect" class="text-2xl font-black text-black mt-0.5">0</div>
+        </div>
+
+        <div class="bg-red-50 border-2 border-red-600 rounded-xl p-3 shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]">
+          <div class="text-xs text-red-700 font-bold flex items-center justify-center gap-1">
+            <i class="fa-solid fa-xmark text-red-600"></i> Falsch
+          </div>
+          <div id="statIncorrect" class="text-2xl font-black text-red-600 mt-0.5">0</div>
+        </div>
+
+        <div class="bg-neutral-100 border-2 border-neutral-300 rounded-xl p-3">
+          <div class="text-xs text-neutral-600 font-bold flex items-center justify-center gap-1">
+            <i class="fa-solid fa-hourglass-half text-neutral-600"></i> Im Umlauf
+          </div>
+          <div id="statRemaining" class="text-2xl font-black text-neutral-800 mt-0.5">0</div>
+        </div>
+      </div>
+
+      <!-- Flashcard mit Flip-Effekt -->
+      <div class="w-full perspective-1000 my-2 select-none">
+        <div id="flashcard" class="relative w-full h-72 sm:h-80 cursor-pointer transform-style-preserve-3d transition-transform duration-500 rounded-3xl">
+          
+          <!-- Card Front: Latein -->
+          <div class="absolute inset-0 bg-white border-2 border-black rounded-3xl p-6 flex flex-col justify-between items-center text-center backface-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:border-red-600 transition-colors">
+            <div class="w-full flex justify-between items-center text-xs font-bold text-neutral-500">
+              <span class="tracking-widest uppercase text-red-600">Latein</span>
+              <span class="bg-neutral-100 border border-neutral-300 text-black px-2.5 py-1 rounded-full text-[11px]">
+                <i class="fa-solid fa-hand-pointer mr-1 text-red-600"></i> Klicken zum Aufdecken
+              </span>
+            </div>
+            
+            <div class="my-auto">
+              <p id="cardLatin" class="text-3xl sm:text-4xl font-roman font-bold text-black tracking-wide mb-2">schola</p>
+            </div>
+
+            <div class="text-xs text-neutral-500 font-medium flex items-center gap-1.5">
+              <i class="fa-solid fa-rotate text-red-600"></i>
+              <span>Klicke auf die Karte für deutsche Übersetzung</span>
+            </div>
+          </div>
+
+          <!-- Card Back: Deutsche Übersetzung -->
+          <div class="absolute inset-0 bg-black border-2 border-red-600 text-white rounded-3xl p-6 flex flex-col justify-between items-center text-center backface-hidden rotate-y-180 shadow-[6px_6px_0px_0px_rgba(220,38,38,1)]">
+            <div class="w-full flex justify-between items-center text-xs">
+              <span class="tracking-widest uppercase font-bold text-red-500">Deutsch</span>
+              <span class="bg-neutral-900 border border-neutral-800 px-2.5 py-1 rounded-full text-white text-[11px]">
+                <i class="fa-solid fa-rotate-left mr-1 text-red-500"></i> Latein zeigen
+              </span>
+            </div>
+            
+            <div class="my-auto px-2">
+              <p id="cardGerman" class="text-2xl sm:text-3xl font-bold text-white leading-snug">Schule</p>
+              <div id="cardLatinSmall" class="text-sm text-neutral-400 mt-3 font-roman italic">schola</div>
+            </div>
+
+            <p class="text-xs text-neutral-400">Bewerte dein Wissen:</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Action Buttons: Falsch & Richtig -->
+      <div id="answerButtonsContainer" class="w-full grid grid-cols-2 gap-4 mt-6">
+        <button type="button" id="btnWrong" class="group py-4 px-4 bg-white hover:bg-red-50 border-2 border-red-600 text-red-600 rounded-2xl font-bold text-base transition duration-150 active:scale-95 shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-circle-xmark text-xl text-red-600 group-hover:scale-110 transition-transform"></i>
+          <span>Falsch</span>
+          <span class="text-xs font-normal text-red-500 block ml-1">(ans Ende)</span>
+        </button>
+
+        <button type="button" id="btnRight" class="group py-4 px-4 bg-black hover:bg-neutral-900 text-white border-2 border-black rounded-2xl font-bold text-base transition duration-150 active:scale-95 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-circle-check text-xl text-white group-hover:scale-110 transition-transform"></i>
+          <span>Richtig</span>
+          <span class="text-xs font-normal text-neutral-300 block ml-1">(gewusst)</span>
+        </button>
+      </div>
+
+      <!-- Keyboard shortcuts hint -->
+      <div class="mt-5 text-xs text-neutral-500 text-center flex flex-wrap justify-center items-center gap-3">
+        <span>Tastatur: <kbd class="px-1.5 py-0.5 bg-neutral-100 border border-neutral-300 rounded font-mono text-black font-semibold">Leertaste</kbd> Karte drehen</span>
+        <span><kbd class="px-1.5 py-0.5 bg-neutral-100 border border-neutral-300 rounded font-mono text-black font-semibold">1</kbd> Falsch</span>
+        <span><kbd class="px-1.5 py-0.5 bg-neutral-100 border border-neutral-300 rounded font-mono text-black font-semibold">2</kbd> Richtig</span>
+      </div>
+
+    </section>
+
+    <!-- VIEW 3: SUMMARY / VICTORY VIEW -->
+    <section id="summaryView" class="w-full max-w-md hidden text-center bg-white p-6 sm:p-8 rounded-3xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+      <div class="w-16 h-16 mx-auto mb-4 bg-red-50 border-2 border-red-600 rounded-full flex items-center justify-center text-red-600 shadow-inner">
+        <i class="fa-solid fa-trophy text-2xl"></i>
+      </div>
+      <h2 class="text-2xl font-black font-roman text-black mb-1">Optime! Geschafft!</h2>
+      <p id="summaryChapterTitle" class="text-sm text-neutral-600 mb-6">Du hast alle Vokabeln dieses Kapitels erfolgreich gelernt.</p>
+
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="p-3 bg-neutral-50 rounded-2xl border-2 border-black">
+          <div class="text-xs text-neutral-600 font-bold uppercase">Richtig gewusst</div>
+          <div id="sumCorrectCount" class="text-2xl font-black text-black mt-1">0</div>
+        </div>
+        <div class="p-3 bg-red-50 rounded-2xl border-2 border-red-600">
+          <div class="text-xs text-red-700 font-bold uppercase">Wiederholungen</div>
+          <div id="sumWrongCount" class="text-2xl font-black text-red-600 mt-1">0</div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-neutral-50 rounded-xl mb-6 text-xs text-neutral-600 border border-neutral-200 text-left">
+        <i class="fa-solid fa-circle-info text-red-600 mr-1"></i>
+        <span>Vokabeln, die mit „Falsch“ markiert wurden, wurden automatisch wiederholt, bis sie saßen.</span>
+      </div>
+
+      <div class="flex flex-col gap-2.5">
+        <button type="button" id="btnRestartChapter" class="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition shadow flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Kapitel wiederholen</span>
+        </button>
+        <button type="button" id="btnSummaryToSelection" class="w-full py-2.5 bg-white hover:bg-neutral-100 text-black border border-black font-semibold rounded-xl transition cursor-pointer">
+          Zurück zur Kapitelauswahl
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW 4: INPUT & EDITOR VIEW -->
+    <section id="editorView" class="w-full max-w-3xl hidden flex-col">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+        <div class="flex items-center justify-between border-b-2 border-neutral-100 pb-4 mb-4">
+          <div>
+            <h2 class="text-xl font-black font-roman text-black">Vokabeln erfassen & bearbeiten</h2>
+            <p class="text-xs text-neutral-500 mt-0.5">Format: <code>#Kapitel 1</code> gefolgt von <code>Latein - Deutsch</code> pro Zeile</p>
+          </div>
+          <button type="button" id="btnEditorBack" class="px-3.5 py-1.5 rounded-lg text-sm bg-white hover:bg-neutral-100 text-black border border-black font-semibold transition flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Zurück</span>
+          </button>
+        </div>
+
+        <div class="bg-neutral-50 border border-neutral-300 rounded-2xl p-4 mb-4 text-xs text-neutral-800 space-y-1">
+          <div class="font-bold text-black flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-info text-red-600"></i> Format-Vorlage:
+          </div>
+          <p class="font-mono bg-white p-2 rounded-lg border border-neutral-200 text-[11px] leading-relaxed">
+#Kapitel 1<br>
+schola - Schule<br>
+hic - hier<br><br>
+#Kapitel 2<br>
+magister - Lehrer
+          </p>
+        </div>
+
+        <label for="editorTextarea" class="block text-xs font-bold uppercase tracking-wider text-black mb-1">Text-Editor (Kapitel 1 bis 20)</label>
+        <textarea id="editorTextarea" spellcheck="false" class="w-full h-80 p-4 border-2 border-neutral-300 rounded-2xl font-mono text-sm leading-relaxed text-black bg-neutral-50 focus:bg-white focus:outline-none focus:border-black transition custom-scroll" placeholder="#Kapitel 1&#10;schola - Schule&#10;&#10;#Kapitel 2&#10;magister - Lehrer"></textarea>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 mt-4 pt-3 border-t border-neutral-200">
+          <button type="button" id="btnOpenResetModal" class="text-xs text-red-600 hover:text-red-800 transition font-bold flex items-center gap-1 cursor-pointer">
+            <i class="fa-solid fa-rotate-left"></i> Standard-Beispieldaten wiederherstellen
+          </button>
+          
+          <div class="flex items-center gap-3">
+            <span id="saveStatus" class="text-xs font-bold text-red-600 opacity-0 transition-opacity duration-200"></span>
+            <button type="button" id="btnSaveEditor" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl transition flex items-center gap-2 active:scale-95 shadow-md cursor-pointer">
+              <i class="fa-solid fa-floppy-disk"></i>
+              <span>Speichern</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal für Bestätigungen (Kein natives confirm/alert) -->
+  <div id="confirmModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border-2 border-black rounded-3xl p-6 max-w-sm w-full shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-center">
+      <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-3 text-xl">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="text-lg font-bold font-roman text-black mb-2">Zurücksetzen bestätigen</h3>
+      <p class="text-xs text-neutral-600 mb-6 leading-relaxed">Möchtest du wirklich alle Kapitel auf die Standard-Vokabeln zurücksetzen? Eigene Änderungen gehen dabei verloren.</p>
+      <div class="grid grid-cols-2 gap-3">
+        <button type="button" id="btnCancelModal" class="py-2.5 px-4 bg-white border border-neutral-300 text-black font-bold text-xs rounded-xl hover:bg-neutral-100 cursor-pointer">
+          Abbrechen
+        </button>
+        <button type="button" id="btnConfirmReset" class="py-2.5 px-4 bg-red-600 text-white font-bold text-xs rounded-xl hover:bg-red-700 cursor-pointer">
+          Ja, zurücksetzen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toastMessage" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black text-white px-5 py-2.5 rounded-full border border-neutral-700 shadow-2xl text-xs font-bold z-50 transition-opacity duration-300 opacity-0 pointer-events-none flex items-center gap-2">
+    <i class="fa-solid fa-circle-check text-red-500"></i>
+    <span id="toastText">Erfolgreich</span>
+  </div>
+
+  <!-- Minimalistischer Footer -->
+  <footer class="mt-auto py-5 text-center text-xs text-neutral-400 border-t border-neutral-100">
+    Latein-Vokabeltrainer • Repetitio est mater studiorum
+  </footer>
+
+  <script>
+    /* =========================================================================
+       1. DEFAULT INITIAL DATA (Kapitel 1-20)
+       ========================================================================= */
+    const DEFAULT_DATA = {
+      1: [
+        { latin: "schola", german: "Schule" },
+        { latin: "hic", german: "hier" },
+        { latin: "sedet", german: "er/sie/es sitzt" },
+        { latin: "amica", german: "Freundin" },
+        { latin: "meus/a/um", german: "mein" },
+        { latin: "est", german: "er/sie/es ist" },
+        { latin: "discipula", german: "Schülerin" },
+        { latin: "bonus/a/um", german: "gut" },
+        { latin: "semper", german: "immer" },
+        { latin: "sunt", german: "sie sind" },
+        { latin: "et", german: "und" },
+        { latin: "amicus", german: "Freund" },
+        { latin: "sed", german: "aber, sondern" },
+        { latin: "discipulus", german: "Schüler" },
+        { latin: "malus/a/um", german: "schlecht" },
+        { latin: "laetus/a/um", german: "froh, fröhlich" },
+        { latin: "saepe", german: "oft" },
+        { latin: "ridet", german: "er/sie/es lacht" },
+        { latin: "cur", german: "warum?" },
+        { latin: "nunc", german: "jetzt, nun" },
+        { latin: "non", german: "nicht" },
+        { latin: "pensum", german: "Aufgabe" },
+        { latin: "magnus/a/um", german: "groß" },
+        { latin: "itaque", german: "deshalb, daher" },
+        { latin: "gaudet", german: "er/sie/es freut sich" },
+        { latin: "diu", german: "lange" },
+        { latin: "laborat", german: "er/sie/es arbeitet" },
+        { latin: "libenter", german: "gern" },
+        { latin: "interrogat", german: "er/sie/es fragt" },
+        { latin: "respondet", german: "er/sie/es antwortet" },
+        { latin: "tum", german: "dann, damals" },
+        { latin: "clamat", german: "er/sie/es ruft, schreit" },
+        { latin: "laudat", german: "er/sie/es lobt" }
+      ],
+      2: [
+        { latin: "quid?", german: "Was?" },
+        { latin: "docet", german: "er/sie/es lehrt, unterrichtet" },
+        { latin: "ubi?", german: "Wo?" },
+        { latin: "iam", german: "schon" },
+        { latin: "exspectat", german: "er/sie/es erwartet" },
+        { latin: "intrat", german: "er/sie/es tritt ein, betritt" },
+        { latin: "salve! salvete!", german: "sei/seid gegrüßt!" },
+        { latin: "magister", german: "Lehrer" },
+        { latin: "amat", german: "er/sie/es liebt" },
+        { latin: "non solum – sed etiam", german: "nicht nur – sondern auch" },
+        { latin: "etiam", german: "auch, sogar" },
+        { latin: "lingua", german: "Zunge, Sprache" },
+        { latin: "Latinus/Latina/Latinum", german: "lateinisch" },
+        { latin: "Graecus/Graeca/Graecum", german: "griechisch" },
+        { latin: "liber", german: "Buch" },
+        { latin: "quam", german: "wie" },
+        { latin: "pulcher/pulchra/pulchrum", german: "schön, hübsch" },
+        { latin: "verbum", german: "Wort" },
+        { latin: "secum", german: "mit sich, bei sich" },
+        { latin: "cogitat", german: "er/sie/es denkt" },
+        { latin: "puer", german: "Bub" },
+        { latin: "puella", german: "Mädchen" },
+        { latin: "quod", german: "weil" },
+        { latin: "quis?", german: "wer?" },
+        { latin: "habet", german: "er/sie/es hat" },
+        { latin: "spectat", german: "er/sie/es schaut an, betrachtet" },
+        { latin: "oculus", german: "Auge" },
+        { latin: "tuus/tua/tuum", german: "dein" },
+        { latin: "monet", german: "er/sie/es ermahnt/mahnt" },
+        { latin: "iratus/irata/iratum", german: "zornig, erzürnt" }
+      ],
+      3: [
+        { latin: "Roma f.", german: "Rom" },
+        { latin: "per (Präp. + Akk.)", german: "durch" },
+        { latin: "via f.", german: "Weg, Straße" },
+        { latin: "ambulo, -as", german: "gehen, spazieren" },
+        { latin: "multi/ae/a (Plural)", german: "viele" },
+        { latin: "multum (n. Sg.)", german: "viel" },
+        { latin: "aedificium n.", german: "Gebäude" },
+        { latin: "video, -es", german: "sehen" },
+        { latin: "-que", german: "und" },
+        { latin: "clarus/a/um", german: "1) berühmt; 2) hell" },
+        { latin: "monstro, -as", german: "zeigen" },
+        { latin: "spectaculum n.", german: "Schauspiel" },
+        { latin: "ibi", german: "dort" },
+        { latin: "statua f.", german: "Statue" },
+        { latin: "vir m.", german: "Mann" },
+        { latin: "-ne", german: "(Fragepartikel, unübersetzt)" },
+        { latin: "certe (Adv.)", german: "sicherlich" },
+        { latin: "forum n.", german: "Forum; Marktplatz" },
+        { latin: "Romanus/a/um", german: "römisch" },
+        { latin: "templum n.", german: "Tempel" },
+        { latin: "tam", german: "so" },
+        { latin: "deus m.", german: "Gott" },
+        { latin: "dea f.", german: "Göttin" },
+        { latin: "ante (Präp. + Akk.)", german: "vor" },
+        { latin: "post (Präp. + Akk.)", german: "nach; hinter" },
+        { latin: "solum (Adv.)", german: "nur" },
+        { latin: "ad (Präp. + Akk.)", german: "zu, an, bei" }
+      ],
+      4: [
+        { latin: "de (Präp. + Abl.)", german: "von (... herab); über" },
+        { latin: "cum (Präp. + Abl.)", german: "mit" },
+        { latin: "sine (Präp. + Abl.)", german: "ohne" },
+        { latin: "femina, (feminae f.)", german: "Frau" },
+        { latin: "gaudium (gaudii n.)", german: "Freude" },
+        { latin: "narro, -as (narravi, narratum)", german: "erzählen" },
+        { latin: "Romani (Pl.), (Romanorum m.)", german: "die Römer" },
+        { latin: "copia, (copiae f.)", german: "Menge, Vorrat" },
+        { latin: "e / ex (Präp. + Abl.)", german: "aus, von" },
+        { latin: "terra, (terrae f.)", german: "Land; Erde" },
+        { latin: "alienus/a/um", german: "fremd" },
+        { latin: "pugno, -as, (pugnavi, -atum)", german: "kämpfen" },
+        { latin: "neco, -as, (necavi, -atum)", german: "töten" },
+        { latin: "placeo, -es, (placui, -itum)", german: "gefallen" },
+        { latin: "novus/a/um", german: "neu" },
+        { latin: "alius/a/ud", german: "ein anderer" },
+        { latin: "alius – alius", german: "der eine – der andere" },
+        { latin: "gladius, (gladii m.)", german: "Schwert" },
+        { latin: "postremo (Adv.)", german: "schließlich, endlich" },
+        { latin: "supero, -as, (superavi, superatum)", german: "besiegen; übertreffen" },
+        { latin: "si", german: "wenn, falls" },
+        { latin: "bene (Adv.)", german: "gut" },
+        { latin: "vita, (vitae f.)", german: "Leben" },
+        { latin: "dono, -as, (donavi, donatum)", german: "schenken" },
+        { latin: "pro (Präp. + Abl.)", german: "für" },
+        { latin: "suus/a/um", german: "sein, ihr" },
+        { latin: "a / ab (Präp. + Abl.)", german: "von" },
+        { latin: "prae (Präp. + Abl.)", german: "vor" },
+        { latin: "neque (= nec)", german: "und nicht" }
+      ],
+      5: [
+        { latin: "mihi / tibi / sibi (Dativ)", german: "mir / dir / sich" },
+        { latin: "me / te / se (Akkusativ)", german: "mich / dich / sich" },
+        { latin: "delectáre, (delecto 1, -avi, -atum)", german: "(jemanden) erfreuen" },
+        { latin: "nonne?", german: "nicht?" },
+        { latin: "ego / tu", german: "ich / du" },
+        { latin: "Graeci (Pl.), Graecorum m.", german: "die Griechen" },
+        { latin: "ita", german: "so" },
+        { latin: "inquit", german: "er/sie sagt(e)" },
+        { latin: "num?", german: "etwa?" },
+        { latin: "vester/tra/trum", german: "euer, eure" },
+        { latin: "quoque (nachgestellt)", german: "auch" },
+        { latin: "nobis / vobis (Dativ)", german: "uns / euch" },
+        { latin: "noster/tra/trum", german: "unser, unsere" },
+        { latin: "in (+ Abl.) (Frage WO?)", german: "in, auf" },
+        { latin: "animus, animi m.", german: "Sinn, Geist" },
+        { latin: "in animo habére", german: "vorhaben" },
+        { latin: "nos / vos (Nom. + Akk.)", german: "wir; uns / ihr; euch" },
+        { latin: "quis nostrum", german: "wer von uns" },
+        { latin: "quis vestrum", german: "wer von euch" },
+        { latin: "nobiscum / vobiscum", german: "mit uns / mit euch" },
+        { latin: "in (+ Akk.) (Frage WOHIN?)", german: "in, nach; gegen" },
+        { latin: "manére, maneo 2, (mansi, mansum)", german: "bleiben" },
+        { latin: "properáre, (propero 1, -avi, -atum)", german: "eilen" },
+        { latin: "aqua, aquae f.", german: "Wasser" },
+        { latin: "iterum (Adv.)", german: "wieder(um)" },
+        { latin: "minime (Adv.)", german: "keineswegs; nein" },
+        { latin: "licet (nur 3.P. Sg.), licuit", german: "es ist erlaubt, es ist möglich" },
+        { latin: "otium, otii n.", german: "Freizeit, Erholung, Ruhe" },
+        { latin: "sub (+ Akk.) (Frage WOHIN?)", german: "unter (...hin)" },
+        { latin: "sub (+ Abl.) (Frage WO?)", german: "unter" },
+        { latin: "terrére, (terreo 2, terrui, territum)", german: "(jemanden) erschrecken" }
+      ]
+    };
+
+    // Alle 20 Kapitel vorinitialisieren
+    for (let i = 1; i <= 20; i++) {
+      if (!DEFAULT_DATA[i]) {
+        DEFAULT_DATA[i] = [];
+      }
+    }
+
+    const STORAGE_KEY = 'latein_vokabeln_red_black_v2';
+    let database = {};
+
+    function initDatabase() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          database = JSON.parse(stored);
+        } else {
+          database = JSON.parse(JSON.stringify(DEFAULT_DATA));
+          saveDatabase();
+        }
+      } catch (e) {
+        console.error("Fehler beim Laden:", e);
+        database = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+      for (let i = 1; i <= 20; i++) {
+        if (!Array.isArray(database[i])) {
+          database[i] = [];
+        }
+      }
+    }
+
+    function saveDatabase() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(database));
+      } catch (e) {
+        console.error("Fehler beim Speichern:", e);
+      }
+    }
+
+    /* =========================================================================
+       2. TEXT-PARSER (#Kapitel X / Latein - Deutsch)
+       ========================================================================= */
+    function parseTextToDatabase(text) {
+      const lines = text.split('\n');
+      const result = {};
+      for (let i = 1; i <= 20; i++) {
+        result[i] = [];
+      }
+
+      let currentChapter = null;
+
+      for (let rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line) continue;
+
+        const match = line.match(/^#\s*Kapitel\s*(\d+)/i);
+        if (match) {
+          const chNum = parseInt(match[1], 10);
+          if (chNum >= 1 && chNum <= 20) {
+            currentChapter = chNum;
+          } else {
+            currentChapter = null;
+          }
+          continue;
+        }
+
+        if (currentChapter !== null && line.includes('-')) {
+          const parts = line.split('-');
+          const latin = parts[0].trim();
+          const german = parts.slice(1).join('-').trim();
+
+          if (latin && german) {
+            result[currentChapter].push({ latin, german });
+          }
+        }
+      }
+      return result;
+    }
+
+    function formatDatabaseToText() {
+      let output = '';
+      for (let i = 1; i <= 20; i++) {
+        const words = database[i] || [];
+        output += `#Kapitel ${i}\n`;
+        if (words.length > 0) {
+          words.forEach(w => {
+            output += `${w.latin} - ${w.german}\n`;
+          });
+        }
+        output += '\n';
+      }
+      return output.trim();
+    }
+
+    /* =========================================================================
+       3. NAVIGATION & VIEWS
+       ========================================================================= */
+    const chapterView = document.getElementById('chapterView');
+    const trainingView = document.getElementById('trainingView');
+    const summaryView = document.getElementById('summaryView');
+    const editorView = document.getElementById('editorView');
+    const confirmModal = document.getElementById('confirmModal');
+
+    function hideAllViews() {
+      chapterView.classList.add('hidden');
+      trainingView.classList.add('hidden');
+      trainingView.classList.remove('flex');
+      summaryView.classList.add('hidden');
+      editorView.classList.add('hidden');
+      editorView.classList.remove('flex');
+    }
+
+    function showChapterSelection() {
+      hideAllViews();
+      chapterView.classList.remove('hidden');
+      renderChapterGrid();
+    }
+
+    function showEditorView() {
+      hideAllViews();
+      editorView.classList.remove('hidden');
+      editorView.classList.add('flex');
+      document.getElementById('editorTextarea').value = formatDatabaseToText();
+    }
+
+    function renderChapterGrid() {
+      const grid = document.getElementById('chapterGrid');
+      grid.innerHTML = '';
+
+      let totalVocabs = 0;
+      let activeChapters = 0;
+
+      for (let i = 1; i <= 20; i++) {
+        const list = database[i] || [];
+        const count = list.length;
+        totalVocabs += count;
+        if (count > 0) activeChapters++;
+
+        const card = document.createElement('div');
+        
+        if (count === 0) {
+          card.className = "bg-neutral-50 border-2 border-dashed border-neutral-300 p-4 rounded-2xl opacity-60 flex flex-col justify-between cursor-not-allowed";
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="font-roman font-bold text-neutral-400 text-sm">Kap. ${i}</span>
+                <span class="text-[10px] font-bold text-neutral-400 bg-neutral-200 px-2 py-0.5 rounded-full">0 Vok.</span>
+              </div>
+              <h3 class="font-bold text-neutral-400 text-sm leading-snug">Leer</h3>
+            </div>
+            <div class="mt-3 pt-2 border-t border-neutral-200 text-xs text-neutral-400 italic">
+              Keine Vokabeln
+            </div>
+          `;
+        } else {
+          card.className = "group bg-white hover:bg-neutral-50 border-2 border-black hover:border-red-600 p-4 rounded-2xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(220,38,38,1)] transition-all cursor-pointer flex flex-col justify-between active:translate-x-0.5 active:translate-y-0.5";
+          card.onclick = () => startChapter(i);
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="font-roman font-black text-black group-hover:text-red-600 text-sm transition-colors">Kap. ${i}</span>
+                <span class="text-[10px] font-bold text-white bg-black group-hover:bg-red-600 px-2 py-0.5 rounded-full transition-colors">${count} Vok.</span>
+              </div>
+              <h3 class="font-bold text-black text-sm leading-snug">Kapitel ${i}</h3>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-neutral-200 flex items-center justify-between text-xs text-black group-hover:text-red-600 font-bold group-hover:translate-x-0.5 transition-transform">
+              <span>Starten</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </div>
+          `;
+        }
+
+        grid.appendChild(card);
+      }
+
+      document.getElementById('overviewStatsText').innerText = `${activeChapters} Kapitel gefüllt • ${totalVocabs} Vokabeln`;
+    }
+
+    function saveVocabulariesFromEditor() {
+      const rawText = document.getElementById('editorTextarea').value;
+      database = parseTextToDatabase(rawText);
+      saveDatabase();
+
+      const status = document.getElementById('saveStatus');
+      status.innerText = "✓ Gespeichert!";
+      status.classList.remove('opacity-0');
+      setTimeout(() => {
+        status.classList.add('opacity-0');
+      }, 2000);
+
+      showToast("Vokabeln erfolgreich gespeichert!");
+    }
+
+    function resetDefaultVocabularies() {
+      database = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      saveDatabase();
+      document.getElementById('editorTextarea').value = formatDatabaseToText();
+      showToast("Standarddaten wiederhergestellt.");
+    }
+
+    /* =========================================================================
+       4. FLASHCARD LEARNING LOGIC
+       ========================================================================= */
+    let currentChapterId = 1;
+    let learningQueue = [];
+    let currentVocab = null;
+    let isFlipped = false;
+    let countCorrect = 0;
+    let countIncorrect = 0;
+
+    function startChapter(chapterId) {
+      const words = database[chapterId];
+      if (!words || words.length === 0) {
+        showToast("Dieses Kapitel hat noch keine Vokabeln!");
+        return;
+      }
+
+      currentChapterId = chapterId;
+      learningQueue = [...words].sort(() => Math.random() - 0.5);
+      countCorrect = 0;
+      countIncorrect = 0;
+
+      document.getElementById('trainingChapterBadge').innerText = `Kapitel ${chapterId}`;
+
+      hideAllViews();
+      trainingView.classList.remove('hidden');
+      trainingView.classList.add('flex');
+
+      loadNextCard();
+    }
+
+    function loadNextCard() {
+      if (learningQueue.length === 0) {
+        showSummary();
+        return;
+      }
+
+      currentVocab = learningQueue.shift();
+      setCardFlip(false);
+
+      document.getElementById('cardLatin').innerText = currentVocab.latin;
+      document.getElementById('cardGerman').innerText = currentVocab.german;
+      document.getElementById('cardLatinSmall').innerText = currentVocab.latin;
+
+      updateStats();
+    }
+
+    function toggleCardFlip() {
+      setCardFlip(!isFlipped);
+    }
+
+    function setCardFlip(flipped) {
+      isFlipped = flipped;
+      const card = document.getElementById('flashcard');
+      if (isFlipped) {
+        card.classList.add('rotate-y-180');
+      } else {
+        card.classList.remove('rotate-y-180');
+      }
+    }
+
+    function handleAnswer(wasCorrect) {
+      if (!currentVocab) return;
+
+      if (wasCorrect) {
+        countCorrect++;
+      } else {
+        countIncorrect++;
+        learningQueue.push(currentVocab);
+        showToast(`„${currentVocab.latin}“ wird wiederholt!`);
+      }
+
+      loadNextCard();
+    }
+
+    function updateStats() {
+      document.getElementById('statCorrect').innerText = countCorrect;
+      document.getElementById('statIncorrect').innerText = countIncorrect;
+      const remaining = learningQueue.length + (currentVocab ? 1 : 0);
+      document.getElementById('statRemaining').innerText = remaining;
+      document.getElementById('queueCounter').innerText = remaining;
+    }
+
+    function confirmExitChapter() {
+      showChapterSelection();
+    }
+
+    function showSummary() {
+      hideAllViews();
+      summaryView.classList.remove('hidden');
+
+      document.getElementById('summaryChapterTitle').innerText = `Du hast alle Vokabeln aus Kapitel ${currentChapterId} erfolgreich abgeschlossen.`;
+      document.getElementById('sumCorrectCount').innerText = countCorrect;
+      document.getElementById('sumWrongCount').innerText = countIncorrect;
+    }
+
+    function restartCurrentChapter() {
+      startChapter(currentChapterId);
+    }
+
+    /* =========================================================================
+       5. UTILITIES & EVENT LISTENERS
+       ========================================================================= */
+    let toastTimeout;
+    function showToast(text) {
+      const toast = document.getElementById('toastMessage');
+      const toastText = document.getElementById('toastText');
+      toastText.innerText = text;
+
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2200);
+    }
+
+    window.showEditorView = showEditorView;
+    window.showChapterSelection = showChapterSelection;
+    window.startChapter = startChapter;
+    window.toggleCardFlip = toggleCardFlip;
+    window.handleAnswer = handleAnswer;
+    window.confirmExitChapter = confirmExitChapter;
+    window.restartCurrentChapter = restartCurrentChapter;
+    window.saveVocabulariesFromEditor = saveVocabulariesFromEditor;
+    window.resetDefaultVocabularies = resetDefaultVocabularies;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initDatabase();
+      renderChapterGrid();
+
+      const btnOpenEditor = document.getElementById('btnOpenEditor');
+      if (btnOpenEditor) btnOpenEditor.addEventListener('click', showEditorView);
+
+      const btnExitChapter = document.getElementById('btnExitChapter');
+      if (btnExitChapter) btnExitChapter.addEventListener('click', confirmExitChapter);
+
+      const flashcardEl = document.getElementById('flashcard');
+      if (flashcardEl) flashcardEl.addEventListener('click', toggleCardFlip);
+
+      const btnWrong = document.getElementById('btnWrong');
+      if (btnWrong) btnWrong.addEventListener('click', () => handleAnswer(false));
+
+      const btnRight = document.getElementById('btnRight');
+      if (btnRight) btnRight.addEventListener('click', () => handleAnswer(true));
+
+      const btnRestartChapter = document.getElementById('btnRestartChapter');
+      if (btnRestartChapter) btnRestartChapter.addEventListener('click', restartCurrentChapter);
+
+      const btnSummaryToSelection = document.getElementById('btnSummaryToSelection');
+      if (btnSummaryToSelection) btnSummaryToSelection.addEventListener('click', showChapterSelection);
+
+      const btnEditorBack = document.getElementById('btnEditorBack');
+      if (btnEditorBack) btnEditorBack.addEventListener('click', showChapterSelection);
+
+      const btnSaveEditor = document.getElementById('btnSaveEditor');
+      if (btnSaveEditor) btnSaveEditor.addEventListener('click', saveVocabulariesFromEditor);
+
+      const btnOpenResetModal = document.getElementById('btnOpenResetModal');
+      const btnCancelModal = document.getElementById('btnCancelModal');
+      const btnConfirmReset = document.getElementById('btnConfirmReset');
+
+      if (btnOpenResetModal) {
+        btnOpenResetModal.addEventListener('click', () => {
+          confirmModal.classList.remove('hidden');
+        });
+      }
+      if (btnCancelModal) {
+        btnCancelModal.addEventListener('click', () => {
+          confirmModal.classList.add('hidden');
+        });
+      }
+      if (btnConfirmReset) {
+        btnConfirmReset.addEventListener('click', () => {
+          confirmModal.classList.add('hidden');
+          resetDefaultVocabularies();
+        });
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT') {
+        return;
+      }
+
+      if (!trainingView.classList.contains('hidden')) {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          toggleCardFlip();
+        } else if (e.key === '1') {
+          e.preventDefault();
+          handleAnswer(false);
+        } else if (e.key === '2') {
+          e.preventDefault();
+          handleAnswer(true);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
